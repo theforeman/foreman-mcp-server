@@ -1,0 +1,21 @@
+[project]
+name = "foreman-mcp-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Oleh Fedorenko", email = "ofedoren@redhat.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "aiofiles>=24.1.0",
+    "apypie>=0.7.1",
+    "fastmcp>=2.8.1",
+]
+
+[project.scripts]
+foreman-mcp-server = "foreman_mcp_server.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
