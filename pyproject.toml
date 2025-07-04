@@ -17,6 +17,9 @@ dependencies = [
 dev = [
     "ruff>=0.6.0",
 ]
+test = [
+    "pytest>=8.0.0",
+]
 
 [project.scripts]
 foreman-mcp-server = "foreman_mcp_server.__main__:main"
