@@ -13,7 +13,7 @@ uv run foreman-mcp-server \
   --foreman-password $FOREMAN_PASSWORD \
   --log-level debug \
   --host localhost \
-  --port 8080
+  --port 8080 \
   --transport streamable-http
 ```
 
@@ -25,6 +25,27 @@ Default values if not provided:
   --log-level INFO
   --host '127.0.0.1'
   --port 8080
+  --transport streamable-http
+```
+
+## Start the server via podman
+
+First, build the container:
+
+```
+podman build -t foreman-mcp-server .
+```
+
+Now run the container:
+
+```shell
+podman run -it -p 8080:8080 foreman-mcp-server \
+  --foreman-url https://my-foreman-instance.something.somewhere \
+  --foreman-username $FOREMAN_USERNAME \
+  --foreman-password $FOREMAN_PASSWORD \
+  --log-level debug \
+  --host localhost \
+  --port 8080 \
   --transport streamable-http
 ```
 
@@ -63,7 +84,6 @@ For use with mcp inspector
 1) Start the inspector with `npx @modelcontextprotocol/inspector`
 2) Open `http://localhost:6274` in your browser
 3) Set `Type` to `Streamable HTTP` and `URL` to `http://localhost:8080/mcp`
-  - or set `Type` to `SSE` and `URL` to `http://localhost:8080/sse`
 4) Click connect
 
 # Using Claude Desktop on Linux
