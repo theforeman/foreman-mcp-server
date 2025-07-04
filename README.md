@@ -28,6 +28,27 @@ Default values if not provided:
   --transport streamable-http
 ```
 
+## Start the server via podman
+
+First, build the container:
+
+```
+podman build -t foreman-mcp-server .
+```
+
+Now run the container:
+
+```shell
+podman run -it -p 8080:8080 foreman-mcp-server \
+  --foreman-url https://my-foreman-instance.something.somewhere \
+  --foreman-username $FOREMAN_USERNAME \
+  --foreman-password $FOREMAN_PASSWORD \
+  --log-level debug \
+  --host localhost \
+  --port 8080 \
+  --transport streamable-http
+```
+
 ## Configure VSCode
 
 ```
