@@ -1,10 +1,11 @@
 [project]
 name = "foreman-mcp-server"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Model Context Protocol (MCP) server implementation that enables LLMs to interact with a Foreman instance using Foreman's API."
 readme = "README.md"
 authors = [
-    { name = "Oleh Fedorenko", email = "ofedoren@redhat.com" }
+    { name = "Oleh Fedorenko", email = "ofedoren@redhat.com" },
+    { name = "Adam Růžička", email = "aruzicka@redhat.com" }
 ]
 requires-python = ">=3.12"
 dependencies = [
