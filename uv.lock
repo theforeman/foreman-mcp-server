@@ -232,12 +232,10 @@ dependencies = [
     { name = "fastmcp" },
 ]
 
-[package.optional-dependencies]
+[package.dev-dependencies]
 dev = [
-    { name = "ruff" },
-]
-test = [
     { name = "pytest" },
+    { name = "ruff" },
 ]
 
 [package.metadata]
@@ -245,10 +243,13 @@ requires-dist = [
     { name = "aiofiles", specifier = ">=24.1.0" },
     { name = "apypie", specifier = ">=0.7.1" },
     { name = "fastmcp", specifier = ">=2.8.1" },
-    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.6.0" },
 ]
-provides-extras = ["dev", "test"]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.0.0" },
+    { name = "ruff", specifier = ">=0.6.0" },
+]
 
 [[package]]
 name = "h11"

@@ -13,11 +13,9 @@ dependencies = [
     "fastmcp>=2.8.1",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "ruff>=0.6.0",
-]
-test = [
     "pytest>=8.0.0",
 ]
 
