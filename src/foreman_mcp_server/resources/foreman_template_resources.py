@@ -1,45 +1,54 @@
 # TODO: Consider refactoring
 
+
 def register_foreman_template_resources(mcp, foreman_api, get_context):
-  @mcp.resource(
-    name="Foreman Template Kinds",
-    description="Provides a list of all template kinds available in Foreman.",
-    uri="foreman://template/kinds",
-    mime_type="text/plain"
-  )
-  async def foreman_template_kinds() -> str:
-    try:
-      # TODO: Consider saving it in cache. Revisit Resource notification mechanism.
-      response = foreman_api.call('template_kinds', 'index', {})
-      kinds = map(lambda res: res.get('name'), response.get('results', []))
-      return ', '.join(kinds)
-    except Exception as e:
-      return f"Error: {str(e)}"
+    @mcp.resource(
+        name="Foreman Template Kinds",
+        description="Provides a list of all template kinds available in Foreman.",
+        uri="foreman://template/kinds",
+        mime_type="text/plain",
+    )
+    async def foreman_template_kinds() -> str:
+        try:
+            # TODO: Consider saving it in cache. Revisit Resource notification mechanism.
+            response = foreman_api.call("template_kinds", "index", {})
+            kinds = [res.get("name") for res in response.get("results", [])]
+            return ", ".join(kinds)
+        except Exception as e:
+            return f"Error: {str(e)}"
 
-  @mcp.resource(
-    name="Foreman Template Models",
-    description="Provides a list of all template models available in Foreman.",
-    uri="foreman://template/models",
-    mime_type="text/plain"
-  )
-  async def foreman_template_models() -> str:
-    try:
-      ctx = get_context()
-      all_resources = await ctx.read_resource('foreman://documentation/api/resources')
-      resource_list = all_resources[0].content.split(', ')
-      models = map(lambda item: item.split('_')[0] , filter(lambda res: res.endswith('_templates'), resource_list))
-      return ', '.join(set(map(lambda model: model.capitalize() + 'Template', models)) - {'OsTemplate'})
-    except Exception as e:
-      return f"Error: {str(e)}"
+    @mcp.resource(
+        name="Foreman Template Models",
+        description="Provides a list of all template models available in Foreman.",
+        uri="foreman://template/models",
+        mime_type="text/plain",
+    )
+    async def foreman_template_models() -> str:
+        try:
+            ctx = get_context()
+            all_resources = await ctx.read_resource(
+                "foreman://documentation/api/resources"
+            )
+            resource_list = all_resources[0].content.split(", ")
+            models = (
+                item.split("_")[0]
+                for item in resource_list
+                if item.endswith("_templates")
+            )
+            return ", ".join(
+                {model.capitalize() + "Template" for model in models} - {"OsTemplate"}
+            )
+        except Exception as e:
+            return f"Error: {str(e)}"
 
-  @mcp.resource(
-    name="Foreman Template Schema",
-    description="Returns the schema of a Foreman template.",
-    uri="foreman://template/schema",
-    mime_type="text/plain"
-  )
-  def foreman_template_schema() -> str:
-    schema = """<%#
+    @mcp.resource(
+        name="Foreman Template Schema",
+        description="Returns the schema of a Foreman template.",
+        uri="foreman://template/schema",
+        mime_type="text/plain",
+    )
+    def foreman_template_schema() -> str:
+        schema = """<%#
 kind: string # optional kind of the template, for the list of available kinds refer to foreman://template/kinds
 name: string # required name of the template
 model: ModelClass # required model of the template, for the list of available models refer to foreman://template/models
@@ -61,4 +70,4 @@ ERB content of the template, which can include limited Ruby code, any of Foreman
 Refer to the Foreman DSL documentation for available macros and syntax at foreman://documentation/dsl/all.
 For more information on writing templates, refer to the Foreman documentation at foreman://doumentation/dsl/help
     """
-    return schema
+        return schema
