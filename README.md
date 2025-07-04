@@ -13,7 +13,7 @@ uv run foreman-mcp-server \
   --foreman-password $FOREMAN_PASSWORD \
   --log-level debug \
   --host localhost \
-  --port 8080
+  --port 8080 \
   --transport streamable-http
 ```
 
@@ -84,7 +84,6 @@ For use with mcp inspector
 1) Start the inspector with `npx @modelcontextprotocol/inspector`
 2) Open `http://localhost:6274` in your browser
 3) Set `Type` to `Streamable HTTP` and `URL` to `http://localhost:8080/mcp`
-  - or set `Type` to `SSE` and `URL` to `http://localhost:8080/sse`
 4) Click connect
 
 # Using Claude Desktop on Linux
