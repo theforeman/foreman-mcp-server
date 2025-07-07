@@ -7,11 +7,11 @@ from .get_foreman_dsl_docs import register_get_foreman_dsl_docs
 # TODO: Maybe foreman-maintain can be a tool?
 
 
-def register_tools(mcp, foreman_api):
+def register_tools(mcp, foreman_api, get_context):
     """Register all tools with the MCP server."""
 
-    register_call_foreman_api(mcp, foreman_api)
-    register_fetch_foreman_dsl_docs(mcp, foreman_api)
+    register_call_foreman_api(mcp, foreman_api, get_context)
+    register_fetch_foreman_dsl_docs(mcp, foreman_api, get_context)
     # TODO: Remove when Claude Desktop supports Resource with parameters
-    register_get_foreman_api_resource_docs(mcp, foreman_api)
-    register_get_foreman_dsl_docs(mcp, foreman_api)
+    register_get_foreman_api_resource_docs(mcp, foreman_api, get_context)
+    register_get_foreman_dsl_docs(mcp, foreman_api, get_context)
