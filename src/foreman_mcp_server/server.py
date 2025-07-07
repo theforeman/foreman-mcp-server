@@ -59,7 +59,7 @@ def main(
         password=foreman_password,
         verify_ssl=False,
     )
-    register_tools(mcp, foreman_api)
+    register_tools(mcp, foreman_api, get_context)
     register_resources(mcp, foreman_api, get_context)
     register_prompts(mcp, foreman_api, get_context)
 
