@@ -1,5 +1,8 @@
+from typing import Any
+
 from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent
+from requests.exceptions import HTTPError
 
 from ..utils.utils import assert_resource
 
@@ -25,16 +28,57 @@ def register_call_foreman_api(mcp, foreman_api, get_context):
                 get_context,
             )
             response = foreman_api.call(resource, action, params)
-            message = (
-                f"Action '{action}' on resource '{resource}' executed successfully."
-            )
-            return ToolResult(
-                content=[TextContent(type="text", text=f"{message}: {response}")],
-                structured_content={"message": message, "response": response},
-            )
+            return format_success_response(resource, action, response)
         except Exception as e:
-            message = f"Failed to execute action '{action}' on resource '{resource}'"
-            return ToolResult(
-                content=[TextContent(type="text", text=f"{message}: {str(e)}")],
-                structured_content={"message": message, "error": str(e)},
-            )
+            return format_failure_response(resource, action, e)
+
+
+def format_success_response(resource: str, action: str, response: str) -> ToolResult:
+    structured_content = build_success_structured_content(resource, action, response)
+    content = derive_legacy_content(structured_content)
+    return ToolResult(
+        content=[TextContent(type="text", text=content)],
+        structured_content=structured_content,
+    )
+
+
+def format_failure_response(
+    resource: str, action: str, exception: Exception
+) -> ToolResult:
+    structured_content = build_failure_structured_content(resource, action, exception)
+    content = derive_legacy_content(structured_content)
+    return ToolResult(
+        content=[TextContent(type="text", text=content)],
+        structured_content=structured_content,
+    )
+
+
+def build_success_structured_content(resource: str, action: str, response: Any) -> dict:
+    return {
+        "message": f"Action '{action}' on resource '{resource}' executed successfully.",
+        "response": response,
+    }
+
+
+def build_failure_structured_content(
+    resource: str, action: str, exception: Exception
+) -> dict:
+    message = f"Failed to execute action '{action}' on resource '{resource}'"
+    structured_content = {
+        "message": message,
+        "error": str(exception),
+    }
+    if isinstance(exception, HTTPError):
+        structured_content["response"] = exception.response.text
+    return structured_content
+
+
+def derive_legacy_content(structured_content: dict) -> str:
+    s = structured_content["message"]
+    if "error" in structured_content:
+        s += f": {structured_content['error']}"
+        if "response" in structured_content:
+            s += f"\n{str(structured_content['response'])}"
+    else:
+        s += f": {str(structured_content['response'])}"
+    return s
