@@ -80,3 +80,29 @@ test error
 <html>test error</html>
 """
         )
+
+    def test_build_failure_with_http_error_and_json_response(self):
+        error = HTTPError("test error", response=Mock(text='{"error": "test error"}'))
+        expected = {
+            "message": "Failed to execute action 'test_action' on resource 'test_resource'",
+            "error": "test error",
+            "response": {"error": "test error"},
+        }
+        structured = build_failure_structured_content(
+            "test_resource", "test_action", error
+        )
+        assert structured == expected
+
+        content = derive_legacy_content(structured)
+        assert (
+            content
+            == """# Message
+Failed to execute action 'test_action' on resource 'test_resource'
+
+# Error
+test error
+
+# Response
+{'error': 'test error'}
+"""
+        )

@@ -1,3 +1,4 @@
+import json
 from typing import Any
 
 from fastmcp.tools.tool import ToolResult
@@ -69,7 +70,10 @@ def build_failure_structured_content(
         "error": str(exception),
     }
     if isinstance(exception, HTTPError):
-        structured_content["response"] = exception.response.text
+        try:
+            structured_content["response"] = json.loads(exception.response.text)
+        except json.JSONDecodeError:
+            structured_content["response"] = exception.response.text
     return structured_content
 
 
