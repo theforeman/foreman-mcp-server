@@ -2,7 +2,7 @@ from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent
 
 from ..utils.dsl_docs_utils import read_dsl_docs_from_markdown
-from ..utils.utils import check_resource
+from ..utils.utils import assert_resource
 
 
 def register_get_foreman_dsl_docs(mcp, foreman_api, get_context):
@@ -20,13 +20,11 @@ def register_get_foreman_dsl_docs(mcp, foreman_api, get_context):
     )
     async def get_foreman_dsl_docs(section: str) -> ToolResult:
         try:
-            is_not_in_list = await check_resource(
+            await assert_resource(
                 section,
                 {"name": "Section", "list_name": "sections", "type": "dsl"},
                 get_context,
             )
-            if is_not_in_list:
-                return is_not_in_list
             docs = await read_dsl_docs_from_markdown(
                 foreman_api.apidoc_cache_dir, f"{section}.en.md"
             )
