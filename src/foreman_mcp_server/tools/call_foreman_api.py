@@ -74,11 +74,7 @@ def build_failure_structured_content(
 
 
 def derive_legacy_content(structured_content: dict) -> str:
-    s = structured_content["message"]
-    if "error" in structured_content:
-        s += f": {structured_content['error']}"
-        if "response" in structured_content:
-            s += f"\n{str(structured_content['response'])}"
-    else:
-        s += f": {str(structured_content['response'])}"
-    return s
+    parts = [
+        f"# {key.capitalize()}\n{value}\n" for key, value in structured_content.items()
+    ]
+    return "\n".join(parts)

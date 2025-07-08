@@ -24,7 +24,12 @@ class TestCallForemanApi:
         content = derive_legacy_content(structured)
         assert (
             content
-            == "Action 'test_action' on resource 'test_resource' executed successfully.: test response"
+            == """# Message
+Action 'test_action' on resource 'test_resource' executed successfully.
+
+# Response
+test response
+"""
         )
 
     def test_build_failure_content(self):
@@ -42,7 +47,12 @@ class TestCallForemanApi:
         content = derive_legacy_content(structured)
         assert (
             content
-            == "Failed to execute action 'test_action' on resource 'test_resource': test error"
+            == """# Message
+Failed to execute action 'test_action' on resource 'test_resource'
+
+# Error
+test error
+"""
         )
 
     def test_build_failure_with_http_error(self):
@@ -60,5 +70,13 @@ class TestCallForemanApi:
         content = derive_legacy_content(structured)
         assert (
             content
-            == "Failed to execute action 'test_action' on resource 'test_resource': test error\n<html>test error</html>"
+            == """# Message
+Failed to execute action 'test_action' on resource 'test_resource'
+
+# Error
+test error
+
+# Response
+<html>test error</html>
+"""
         )
