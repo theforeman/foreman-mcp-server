@@ -78,7 +78,11 @@ def build_failure_structured_content(
 
 
 def derive_legacy_content(structured_content: dict) -> str:
-    parts = [
-        f"# {key.capitalize()}\n{value}\n" for key, value in structured_content.items()
-    ]
+    parts = [to_markdown_like(key, value) for key, value in structured_content.items()]
     return "\n".join(parts)
+
+
+def to_markdown_like(key: str, value: Any) -> str:
+    if isinstance(value, dict | list):
+        value = f"```json\n{json.dumps(value, indent=2)}\n```"
+    return f"# {key.capitalize()}\n{value}\n"

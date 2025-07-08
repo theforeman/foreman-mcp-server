@@ -103,6 +103,10 @@ Failed to execute action 'test_action' on resource 'test_resource'
 test error
 
 # Response
-{'error': 'test error'}
+```json
+{
+  "error": "test error"
+}
+```
 """
         )
