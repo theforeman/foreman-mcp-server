@@ -1,7 +1,7 @@
 from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent
 
-from ..utils.utils import check_resource
+from ..utils.utils import assert_resource
 
 
 def register_get_foreman_api_resource_docs(mcp, foreman_api, get_context):
@@ -20,13 +20,11 @@ def register_get_foreman_api_resource_docs(mcp, foreman_api, get_context):
     )
     async def get_foreman_api_resource_docs(resource: str) -> ToolResult:
         try:
-            is_not_in_list = await check_resource(
+            await assert_resource(
                 resource,
                 {"name": "Resource", "list_name": "resources", "type": "api"},
                 get_context,
             )
-            if is_not_in_list:
-                return is_not_in_list
             docs = foreman_api.apidoc["docs"]["resources"][resource]
             message = (
                 f"API documentation for resource '{resource}' fetched successfully"

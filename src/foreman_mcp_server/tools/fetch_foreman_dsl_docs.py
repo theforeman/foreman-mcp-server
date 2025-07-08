@@ -2,7 +2,7 @@ from fastmcp.tools.tool import ToolResult
 from mcp.types import TextContent
 
 from ..utils.dsl_docs_utils import save_dsl_docs_as_markdown
-from ..utils.utils import check_resource
+from ..utils.utils import assert_resource
 
 
 def register_fetch_foreman_dsl_docs(mcp, foreman_api, get_context):
@@ -22,13 +22,11 @@ def register_fetch_foreman_dsl_docs(mcp, foreman_api, get_context):
     async def fetch_foreman_dsl_docs(section: str) -> ToolResult:
         try:
             # TODO: Fix apipie-dsl since it returns all.en.json for non-existing sections
-            is_not_in_list = await check_resource(
+            await assert_resource(
                 section,
                 {"name": "Section", "list_name": "sections", "type": "dsl"},
                 get_context,
             )
-            if is_not_in_list:
-                return is_not_in_list
             response = foreman_api.http_call(
                 "get", f"/templates_doc/v1/{section}.en.json"
             )

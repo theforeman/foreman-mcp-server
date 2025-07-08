@@ -2,8 +2,7 @@
 
 import json
 
-from fastmcp.tools.tool import ToolResult
-from mcp.types import TextContent
+from fastmcp.exceptions import ToolError
 
 
 async def api_prompt(get_context) -> str:
@@ -40,9 +39,9 @@ async def dsl_prompt(section, get_context) -> str:
         )
 
 
-async def check_resource(
+async def assert_resource(
     to_check: str, resource_info: dict, get_context
-) -> ToolResult | None:
+) -> bool | None:
     """Checks if a specific resource is available in the resource list."""
 
     ctx = get_context()
@@ -52,14 +51,6 @@ async def check_resource(
     resources = resource[0].content.split(", ")
     if to_check not in resources:
         message = f"{resource_info['name']} '{to_check}' is not available in the list"
-        return ToolResult(
-            content=[
-                TextContent(type="text", text=f"{message}: {', '.join(resources)}")
-            ],
-            structured_content={
-                "message": message,
-                f"available_{resource_info['list_name']}": resources,
-            },
-        )
+        raise ToolError(f"{message}: {', '.join(resources)}")
     else:
-        return None
+        return True

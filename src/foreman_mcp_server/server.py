@@ -64,8 +64,14 @@ def main(
     register_prompts(mcp, foreman_api, get_context)
 
     if transport == "stdio":
-        mcp.run()
+        mcp.run(transport="stdio", show_banner=False)
     else:
-        mcp.run(transport="streamable-http", host=host, port=port, log_level=log_level)
+        mcp.run(
+            transport="streamable-http",
+            host=host,
+            port=port,
+            log_level=log_level,
+            show_banner=False,
+        )
 
     return 0
