@@ -70,10 +70,12 @@ def build_failure_structured_content(
         "error": str(exception),
     }
     if isinstance(exception, HTTPError):
-        try:
-            structured_content["response"] = json.loads(exception.response.text)
-        except json.JSONDecodeError:
-            structured_content["response"] = exception.response.text
+        text = getattr(exception.response, "text", None)
+        if text:
+            try:
+                structured_content["response"] = json.loads(text)
+            except json.JSONDecodeError:
+                structured_content["response"] = text
     return structured_content
 
 
