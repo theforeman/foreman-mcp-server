@@ -5,8 +5,8 @@ from requests.exceptions import HTTPError
 from foreman_mcp_server.tools.call_foreman_api import (
     build_failure_structured_content,
     build_success_structured_content,
-    derive_legacy_content,
 )
+from foreman_mcp_server.utils.content_utils import derive_legacy_content
 
 
 class TestCallForemanApi:

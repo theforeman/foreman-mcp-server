@@ -2,9 +2,9 @@ import json
 from typing import Any
 
 from fastmcp.tools.tool import ToolResult
-from mcp.types import TextContent
 from requests.exceptions import HTTPError
 
+from ..utils.content_utils import build_tool_result
 from ..utils.utils import assert_resource
 
 
@@ -36,22 +36,14 @@ def register_call_foreman_api(mcp, foreman_api, get_context):
 
 def format_success_response(resource: str, action: str, response: str) -> ToolResult:
     structured_content = build_success_structured_content(resource, action, response)
-    content = derive_legacy_content(structured_content)
-    return ToolResult(
-        content=[TextContent(type="text", text=content)],
-        structured_content=structured_content,
-    )
+    return build_tool_result(structured_content)
 
 
 def format_failure_response(
     resource: str, action: str, exception: Exception
 ) -> ToolResult:
     structured_content = build_failure_structured_content(resource, action, exception)
-    content = derive_legacy_content(structured_content)
-    return ToolResult(
-        content=[TextContent(type="text", text=content)],
-        structured_content=structured_content,
-    )
+    return build_tool_result(structured_content)
 
 
 def build_success_structured_content(resource: str, action: str, response: Any) -> dict:
@@ -77,14 +69,3 @@ def build_failure_structured_content(
             except json.JSONDecodeError:
                 structured_content["response"] = text
     return structured_content
-
-
-def derive_legacy_content(structured_content: dict) -> str:
-    parts = [to_markdown_like(key, value) for key, value in structured_content.items()]
-    return "\n".join(parts)
-
-
-def to_markdown_like(key: str, value: Any) -> str:
-    if isinstance(value, dict | list):
-        value = f"```json\n{json.dumps(value, indent=2)}\n```"
-    return f"# {key.capitalize()}\n{value}\n"

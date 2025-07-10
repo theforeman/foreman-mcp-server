@@ -1,6 +1,6 @@
 from fastmcp.tools.tool import ToolResult
-from mcp.types import TextContent
 
+from ..utils.content_utils import build_tool_result
 from ..utils.utils import assert_resource
 
 
@@ -29,17 +29,18 @@ def register_get_foreman_api_resource_docs(mcp, foreman_api, get_context):
             message = (
                 f"API documentation for resource '{resource}' fetched successfully"
             )
-            return ToolResult(
-                content=[TextContent(type="text", text=f"{message}: {docs}")],
-                structured_content={
+            return build_tool_result(
+                {
                     "message": message,
                     "resource": resource,
                     "documentation": docs,
-                },
+                }
             )
         except Exception as e:
             message = f"Failed to read API documentation for resource '{resource}'"
-            return ToolResult(
-                content=[TextContent(type="text", text=f"{message}: {str(e)}")],
-                structured_content={"message": message, "error": str(e)},
+            return build_tool_result(
+                {
+                    "message": message,
+                    "error": str(e),
+                }
             )
