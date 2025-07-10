@@ -5,7 +5,7 @@ from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
 
 from ..utils.content_utils import build_tool_result
-from ..utils.utils import assert_resource
+from ..utils.utils import assert_resource, mcp_info_headers
 
 
 # TODO: Probably split it into multiple tools (read-only, destructive, etc)
@@ -28,7 +28,9 @@ def register_call_foreman_api(mcp, foreman_api, get_context):
                 {"name": "Resource", "list_name": "resources", "type": "api"},
                 get_context,
             )
-            response = foreman_api.call(resource, action, params)
+            response = foreman_api.call(
+                resource, action, params, mcp_info_headers(get_context)
+            )
             return format_success_response(resource, action, response)
         except Exception as e:
             return format_failure_response(resource, action, e)

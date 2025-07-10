@@ -18,3 +18,15 @@ async def assert_resource(
         raise ToolError(f"{message}: {', '.join(resources)}")
     else:
         return True
+
+
+def mcp_info_headers(get_context) -> dict:
+    """Returns MCP info headers for the request."""
+
+    ctx = get_context()
+    return {
+        "X-Foreman-MCP-Server-Host": f"{ctx.request_context.request.client.host}:{ctx.request_context.request.client.port}",
+        "X-Foreman-MCP-Server-MCP-Session-ID": ctx.request_context.request.headers.get(
+            "mcp-session-id"
+        ),
+    }
