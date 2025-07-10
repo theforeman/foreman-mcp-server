@@ -1,6 +1,6 @@
 from fastmcp.tools.tool import ToolResult
-from mcp.types import TextContent
 
+from ..utils.content_utils import build_tool_result
 from ..utils.dsl_docs_utils import save_dsl_docs_as_markdown
 from ..utils.utils import assert_resource
 
@@ -34,17 +34,18 @@ def register_fetch_foreman_dsl_docs(mcp, foreman_api, get_context):
                 foreman_api.apidoc_cache_dir, f"{section}.en.md", response
             )
             message = f"DSL documentation for section '{section}' fetched successfully and saved to cache."
-            return ToolResult(
-                content=[TextContent(type="text", text=message)],
-                structured_content={
+            return build_tool_result(
+                {
                     "message": message,
                     "file": f"{section}.en.md",
                     "state": "present",
-                },
+                }
             )
         except Exception as e:
             message = f"Failed to fetch DSL documentation for section '{section}'"
-            return ToolResult(
-                content=[TextContent(type="text", text=f"{message}: {str(e)}")],
-                structured_content={"message": message, "error": str(e)},
+            return build_tool_result(
+                {
+                    "message": message,
+                    "error": str(e),
+                }
             )

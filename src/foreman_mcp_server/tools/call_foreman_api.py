@@ -1,6 +1,10 @@
-from fastmcp.tools.tool import ToolResult
-from mcp.types import TextContent
+import json
+from typing import Any
 
+from fastmcp.tools.tool import ToolResult
+from requests.exceptions import HTTPError
+
+from ..utils.content_utils import build_tool_result
 from ..utils.utils import assert_resource
 
 
@@ -25,16 +29,43 @@ def register_call_foreman_api(mcp, foreman_api, get_context):
                 get_context,
             )
             response = foreman_api.call(resource, action, params)
-            message = (
-                f"Action '{action}' on resource '{resource}' executed successfully."
-            )
-            return ToolResult(
-                content=[TextContent(type="text", text=f"{message}: {response}")],
-                structured_content={"message": message, "response": response},
-            )
+            return format_success_response(resource, action, response)
         except Exception as e:
-            message = f"Failed to execute action '{action}' on resource '{resource}'"
-            return ToolResult(
-                content=[TextContent(type="text", text=f"{message}: {str(e)}")],
-                structured_content={"message": message, "error": str(e)},
-            )
+            return format_failure_response(resource, action, e)
+
+
+def format_success_response(resource: str, action: str, response: str) -> ToolResult:
+    structured_content = build_success_structured_content(resource, action, response)
+    return build_tool_result(structured_content)
+
+
+def format_failure_response(
+    resource: str, action: str, exception: Exception
+) -> ToolResult:
+    structured_content = build_failure_structured_content(resource, action, exception)
+    return build_tool_result(structured_content)
+
+
+def build_success_structured_content(resource: str, action: str, response: Any) -> dict:
+    return {
+        "message": f"Action '{action}' on resource '{resource}' executed successfully.",
+        "response": response,
+    }
+
+
+def build_failure_structured_content(
+    resource: str, action: str, exception: Exception
+) -> dict:
+    message = f"Failed to execute action '{action}' on resource '{resource}'"
+    structured_content = {
+        "message": message,
+        "error": str(exception),
+    }
+    if isinstance(exception, HTTPError):
+        text = getattr(exception.response, "text", None)
+        if text:
+            try:
+                structured_content["response"] = json.loads(text)
+            except json.JSONDecodeError:
+                structured_content["response"] = text
+    return structured_content
