@@ -1,10 +1,14 @@
+import logging
 import socket
 
 import apypie
 import click
 from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_context
+from fastmcp.settings import LOG_LEVEL
+from fastmcp.utilities.logging import configure_logging, get_logger
 
+from .middleware.logging import LoggingMiddleware
 from .prompts import register_prompts
 from .resources import register_resources
 from .tools import register_tools
@@ -43,7 +47,7 @@ from .tools import register_tools
 def main(
     host: str,
     port: int,
-    log_level: str,
+    log_level: LOG_LEVEL,
     foreman_url: str,
     foreman_username: str,
     foreman_password: str,
@@ -52,6 +56,13 @@ def main(
     """Run the Foreman MCP server."""
 
     mcp = FastMCP(name="Foreman MCP Server")
+
+    # Default loggers
+    logging.basicConfig(level=log_level)
+    configure_logging(level=log_level)
+    # Global logger for the MCP server
+    logger = get_logger("foreman_mcp_server")
+    logger.setLevel(log_level)
 
     foreman_api = apypie.ForemanApi(
         uri=foreman_url,
@@ -63,6 +74,8 @@ def main(
     register_resources(mcp, foreman_api, get_context)
     register_prompts(mcp, foreman_api, get_context)
 
+    mcp.add_middleware(LoggingMiddleware())
+
     if transport == "stdio":
         mcp.run(transport="stdio", show_banner=False)
     else:
@@ -70,8 +83,8 @@ def main(
             transport="streamable-http",
             host=host,
             port=port,
-            log_level=log_level,
             show_banner=False,
+            log_level=log_level,
         )
 
     return 0
