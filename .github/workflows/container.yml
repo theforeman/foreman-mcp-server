@@ -29,7 +29,7 @@ jobs:
         tags: ${{ steps.build-image.outputs.tags }}
         registry: quay.io/foreman
         username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_PASSWORD }}
+        password: ${{ secrets.REGISTRY_TOKEN }}
 
     - name: Print image url
       run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
