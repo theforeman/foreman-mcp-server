@@ -9,7 +9,6 @@ def register_reporting_prompts(mcp, _foreman_api, _get_context):
             " Read API documentation for each of the needed resources before doing any searches."
             " For each subnet, report its name, address, network mask and number of hosts which are assigned to it."
         )
-        # prompt += f" {await api_prompt(get_context)}" # noqa: ERA001
         return prompt
 
     @mcp.prompt(
@@ -21,5 +20,4 @@ def register_reporting_prompts(mcp, _foreman_api, _get_context):
             "Generate a static report of all hosts on my Foreman instance which have pending security updates."
             " For each host, include its name and number of pending updates."
         )
-        # prompt += f" {await api_prompt(get_context)}" # noqa: ERA001
         return prompt
