@@ -6,7 +6,7 @@ import click
 from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_context
 from fastmcp.settings import LOG_LEVEL
-from fastmcp.utilities.logging import configure_logging, get_logger
+from fastmcp.utilities.logging import configure_logging
 
 from .middleware.logging import LoggingMiddleware
 from .prompts import register_prompts
@@ -16,6 +16,13 @@ from .tools import register_tools
 # TODO: Revisit all the places to properly handle exceptions and errors. Consider using fastmcp's exceptions.
 
 
+def normalize_log_level(_ctx, _param, value):
+    """Standardize log level input to uppercase."""
+    if value:
+        value = value.upper()
+    return value
+
+
 @click.command()
 @click.option("--port", default=8080, help="Port to listen on for HTTP")
 @click.option("--host", default="127.0.0.1", help="Host to listen on for HTTP")
@@ -23,6 +30,7 @@ from .tools import register_tools
     "--log-level",
     default="INFO",
     help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+    callback=normalize_log_level,
 )
 @click.option(
     "--foreman-url",
@@ -61,7 +69,7 @@ def main(
     logging.basicConfig(level=log_level)
     configure_logging(level=log_level)
     # Global logger for the MCP server
-    logger = get_logger("foreman_mcp_server")
+    logger = logging.getLogger("foreman_mcp_server")
     logger.setLevel(log_level)
 
     foreman_api = apypie.ForemanApi(
