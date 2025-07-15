@@ -29,11 +29,13 @@ from .tools import register_tools
     "--foreman-username",
     default="admin",
     help="Username for Foreman API authentication",
+    envvar="FOREMAN_USERNAME",
 )
 @click.option(
     "--foreman-password",
     default="changeme",
     help="Password for Foreman API authentication",
+    envvar="FOREMAN_PASSWORD",
 )
 @click.option(
     "--transport",
