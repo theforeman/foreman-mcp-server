@@ -5,28 +5,35 @@ from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
 
 from ..utils.content_utils import build_tool_result
-from ..utils.utils import assert_resource, mcp_info_headers
+from ..utils.utils import assert_http_method, assert_resource, mcp_info_headers
 
 
 # TODO: Probably split it into multiple tools (read-only, destructive, etc)
-def register_call_foreman_api(mcp, foreman_api, get_context):
+def register_foreman_api_methods(mcp, foreman_api, get_context):
     @mcp.tool(
-        description="Calls an action on a Foreman API resource.",
-        tags=("foreman", "api", "action", "resource", "remote"),
+        description="Calls GET action on Foreman API.",
+        tags=("foreman", "api", "get", "resource", "remote"),
         annotations={
-            "title": "Call Foreman API Action",
-            "readOnlyHint": False,
-            "destructiveHint": True,
+            "title": "Call Foreman API GET Action",
+            "readOnlyHint": True,
+            "destructiveHint": False,
             "idempotentHint": False,
             "openWorldHint": False,
         },
     )
-    async def call_foreman_api(resource: str, action: str, params: dict) -> ToolResult:
+    async def call_foreman_api_get(
+        resource: str, action: str, params: dict
+    ) -> ToolResult:
         try:
             await assert_resource(
                 resource,
                 {"name": "Resource", "list_name": "resources", "type": "api"},
                 get_context,
+            )
+            assert_http_method(
+                foreman_api,
+                {"name": action, "resource": resource, "params": params},
+                "get",
             )
             response = foreman_api.call(
                 resource, action, params, mcp_info_headers(get_context)
