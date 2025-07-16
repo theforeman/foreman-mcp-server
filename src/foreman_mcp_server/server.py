@@ -41,11 +41,13 @@ def normalize_log_level(_ctx, _param, value):
     "--foreman-username",
     default="admin",
     help="Username for Foreman API authentication",
+    envvar="FOREMAN_USERNAME",
 )
 @click.option(
     "--foreman-password",
     default="changeme",
     help="Password for Foreman API authentication",
+    envvar="FOREMAN_PASSWORD",
 )
 @click.option(
     "--transport",
