@@ -9,6 +9,7 @@ from fastmcp.settings import LOG_LEVEL
 from fastmcp.utilities.logging import configure_logging
 
 from .middleware.logging import LoggingMiddleware
+from .middleware.auth import AuthMiddleware
 from .prompts import register_prompts
 from .resources import register_resources
 from .tools import register_tools
@@ -84,6 +85,7 @@ def main(
     register_resources(mcp, foreman_api, get_context)
     register_prompts(mcp, foreman_api, get_context)
 
+    mcp.add_middleware(AuthMiddleware(foreman_url))
     mcp.add_middleware(LoggingMiddleware())
 
     if transport == "stdio":

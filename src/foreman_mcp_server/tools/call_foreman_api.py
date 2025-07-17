@@ -25,6 +25,8 @@ def register_foreman_api_methods(mcp, foreman_api, get_context):
         resource: str, action: str, params: dict
     ) -> ToolResult:
         try:
+            ctx = get_context()
+            foreman_api = getattr(ctx, 'foreman_api')
             await assert_resource(
                 resource,
                 {"name": "Resource", "list_name": "resources", "type": "api"},
