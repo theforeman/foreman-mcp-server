@@ -2,7 +2,7 @@ from fastmcp.tools.tool import ToolResult
 
 from ..utils.content_utils import build_tool_result
 from ..utils.dsl_docs_utils import save_dsl_docs_as_markdown
-from ..utils.utils import assert_resource, mcp_info_headers
+from ..utils.utils import assert_resource, get_foreman_api, mcp_info_headers
 
 
 def register_fetch_foreman_dsl_docs(mcp, foreman_api, get_context):
@@ -22,18 +22,19 @@ def register_fetch_foreman_dsl_docs(mcp, foreman_api, get_context):
     async def fetch_foreman_dsl_docs(section: str) -> ToolResult:
         try:
             # TODO: Fix apipie-dsl since it returns all.en.json for non-existing sections
+            api = foreman_api or get_foreman_api(get_context)
             await assert_resource(
                 section,
                 {"name": "Section", "list_name": "sections", "type": "dsl"},
                 get_context,
             )
-            response = foreman_api.http_call(
+            response = api.http_call(
                 "get",
                 f"/templates_doc/v1/{section}.en.json",
                 headers=mcp_info_headers(get_context),
             )
             await save_dsl_docs_as_markdown(
-                foreman_api.apidoc_cache_dir, f"{section}.en.md", response
+                api.apidoc_cache_dir, f"{section}.en.md", response
             )
             message = f"DSL documentation for section '{section}' fetched successfully and saved to cache."
             return build_tool_result(

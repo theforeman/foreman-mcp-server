@@ -1,7 +1,7 @@
 from fastmcp.tools.tool import ToolResult
 
 from ..utils.content_utils import build_tool_result
-from ..utils.utils import assert_resource
+from ..utils.utils import assert_resource, get_foreman_api
 
 
 def register_get_foreman_api_resource_docs(mcp, foreman_api, get_context):
@@ -20,12 +20,13 @@ def register_get_foreman_api_resource_docs(mcp, foreman_api, get_context):
     )
     async def get_foreman_api_resource_docs(resource: str) -> ToolResult:
         try:
+            api = foreman_api or get_foreman_api(get_context)
             await assert_resource(
                 resource,
                 {"name": "Resource", "list_name": "resources", "type": "api"},
                 get_context,
             )
-            docs = foreman_api.apidoc["docs"]["resources"][resource]
+            docs = api.apidoc["docs"]["resources"][resource]
             message = (
                 f"API documentation for resource '{resource}' fetched successfully"
             )

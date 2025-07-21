@@ -1,6 +1,9 @@
 # TODO: Consider refactoring
 
 
+from foreman_mcp_server.utils.utils import get_foreman_api
+
+
 def register_foreman_template_resources(mcp, foreman_api, get_context):
     @mcp.resource(
         name="Foreman Template Kinds",
@@ -11,7 +14,8 @@ def register_foreman_template_resources(mcp, foreman_api, get_context):
     async def foreman_template_kinds() -> str:
         try:
             # TODO: Consider saving it in cache. Revisit Resource notification mechanism.
-            response = foreman_api.call("template_kinds", "index", {})
+            api = foreman_api or get_foreman_api(get_context)
+            response = api.call("template_kinds", "index", {})
             kinds = [res.get("name") for res in response.get("results", [])]
             return ", ".join(kinds)
         except Exception as e:

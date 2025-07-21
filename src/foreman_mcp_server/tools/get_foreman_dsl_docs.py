@@ -2,7 +2,7 @@ from fastmcp.tools.tool import ToolResult
 
 from ..utils.content_utils import build_tool_result
 from ..utils.dsl_docs_utils import read_dsl_docs_from_markdown
-from ..utils.utils import assert_resource
+from ..utils.utils import assert_resource, get_foreman_api
 
 
 def register_get_foreman_dsl_docs(mcp, foreman_api, get_context):
@@ -20,13 +20,14 @@ def register_get_foreman_dsl_docs(mcp, foreman_api, get_context):
     )
     async def get_foreman_dsl_docs(section: str) -> ToolResult:
         try:
+            api = foreman_api or get_foreman_api(get_context)
             await assert_resource(
                 section,
                 {"name": "Section", "list_name": "sections", "type": "dsl"},
                 get_context,
             )
             docs = await read_dsl_docs_from_markdown(
-                foreman_api.apidoc_cache_dir, f"{section}.en.md"
+                api.apidoc_cache_dir, f"{section}.en.md"
             )
             message = f"DSL documentation for section '{section}' read successfully"
             return build_tool_result(
