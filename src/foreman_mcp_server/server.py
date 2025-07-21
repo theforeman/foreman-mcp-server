@@ -8,8 +8,8 @@ from fastmcp.server.dependencies import get_context
 from fastmcp.settings import LOG_LEVEL
 from fastmcp.utilities.logging import configure_logging
 
-from .middleware.logging import LoggingMiddleware
 from .middleware.auth import AuthMiddleware
+from .middleware.logging import LoggingMiddleware
 from .prompts import register_prompts
 from .resources import register_resources
 from .tools import register_tools
@@ -22,6 +22,20 @@ def normalize_log_level(_ctx, _param, value):
     if value:
         value = value.upper()
     return value
+
+
+def assert_server_mode(foreman_username: str, foreman_password: str, transport: str):
+    """Assert that the server is running in the correct mode."""
+    if transport == "streamable-http":
+        if foreman_username or foreman_password:
+            raise ValueError(
+                "Foreman username and password should not be set when using streamable-http transport."
+            )
+    else:
+        if not foreman_username or not foreman_password:
+            raise ValueError(
+                "Foreman username and password must be set when using stdio transport."
+            )
 
 
 @click.command()
@@ -40,14 +54,12 @@ def normalize_log_level(_ctx, _param, value):
 )
 @click.option(
     "--foreman-username",
-    default="admin",
-    help="Username for Foreman API authentication",
+    help="Username for Foreman API authentication. Can be set via FOREMAN_USERNAME environment variable.",
     envvar="FOREMAN_USERNAME",
 )
 @click.option(
     "--foreman-password",
-    default="changeme",
-    help="Password for Foreman API authentication",
+    help="Password for Foreman API authentication. Can be set via FOREMAN_PASSWORD environment variable. Personal access tokens are recommended.",
     envvar="FOREMAN_PASSWORD",
 )
 @click.option(
@@ -55,7 +67,9 @@ def normalize_log_level(_ctx, _param, value):
     default="streamable-http",
     help="Transport protocol to use (streamable-http, stdio)",
 )
+@click.pass_context
 def main(
+    ctx: click.Context,
     host: str,
     port: int,
     log_level: LOG_LEVEL,
@@ -66,26 +80,35 @@ def main(
 ) -> int:
     """Run the Foreman MCP server."""
 
-    mcp = FastMCP(name="Foreman MCP Server")
-
     # Default loggers
     logging.basicConfig(level=log_level)
     configure_logging(level=log_level)
     # Global logger for the MCP server
     logger = logging.getLogger("foreman_mcp_server")
     logger.setLevel(log_level)
+    try:
+        assert_server_mode(foreman_username, foreman_password, transport)
+    except ValueError as e:
+        logger.error(f"configuration: {e}")
+        ctx.exit(1)
 
-    foreman_api = apypie.ForemanApi(
-        uri=foreman_url,
-        username=foreman_username,
-        password=foreman_password,
-        verify_ssl=False,
-    )
+    mcp = FastMCP(name="Foreman MCP Server")
+
+    foreman_api = None
+    if transport == "stdio":
+        foreman_api = apypie.ForemanApi(
+            uri=foreman_url,
+            username=foreman_username,
+            password=foreman_password,
+            verify_ssl=False,  # TODO: Make this configurable?
+        )
     register_tools(mcp, foreman_api, get_context)
     register_resources(mcp, foreman_api, get_context)
     register_prompts(mcp, foreman_api, get_context)
 
-    mcp.add_middleware(AuthMiddleware(foreman_url))
+    # TODO: We should've probably used https://gofastmcp.com/servers/middleware#error-handling-middleware for error handling
+    if transport == "streamable-http":
+        mcp.add_middleware(AuthMiddleware(foreman_url))
     mcp.add_middleware(LoggingMiddleware())
 
     if transport == "stdio":
@@ -99,4 +122,4 @@ def main(
             log_level=log_level,
         )
 
-    return 0
+    ctx.exit(0)

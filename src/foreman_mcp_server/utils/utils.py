@@ -1,5 +1,6 @@
 # TODO: Needs refactoring, better error handling or entire removal.
 
+from apypie import ForemanApi
 from apypie.resource import Resource
 from fastmcp.exceptions import ToolError
 
@@ -45,3 +46,16 @@ def mcp_info_headers(get_context) -> dict:
             "mcp-session-id"
         ),
     }
+
+
+def get_foreman_api(get_context) -> ForemanApi:
+    """Retrieves the Foreman API instance for the given username."""
+
+    ctx = get_context()
+    foreman_username = ctx.request_context.request.headers.get("foreman_username")
+    session_id = ctx.request_context.request.headers.get("mcp-session-id")
+    user_map = getattr(ctx, "user_map", {})
+
+    if foreman_username in user_map and session_id in user_map[foreman_username]:
+        return user_map[foreman_username][session_id]
+    raise RuntimeError(f"Foreman API is not available for {foreman_username}.")
