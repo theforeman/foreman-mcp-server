@@ -67,6 +67,12 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
     default="streamable-http",
     help="Transport protocol to use (streamable-http, stdio)",
 )
+@click.option(
+    "--verify-ssl",
+    default=True,
+    is_flag=True,
+    help="Verify SSL certificates when connecting to Foreman API.",
+)
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -77,6 +83,7 @@ def main(
     foreman_username: str,
     foreman_password: str,
     transport: str,
+    verify_ssl: bool = True,
 ) -> int:
     """Run the Foreman MCP server."""
 
@@ -100,7 +107,7 @@ def main(
             uri=foreman_url,
             username=foreman_username,
             password=foreman_password,
-            verify_ssl=False,  # TODO: Make this configurable?
+            verify_ssl=verify_ssl,
         )
     register_tools(mcp, foreman_api, get_context)
     register_resources(mcp, foreman_api, get_context)
@@ -108,7 +115,7 @@ def main(
 
     # TODO: We should've probably used https://gofastmcp.com/servers/middleware#error-handling-middleware for error handling
     if transport == "streamable-http":
-        mcp.add_middleware(AuthMiddleware(foreman_url))
+        mcp.add_middleware(AuthMiddleware(foreman_url, verify_ssl))
     mcp.add_middleware(LoggingMiddleware())
 
     if transport == "stdio":
