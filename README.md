@@ -14,15 +14,13 @@ uv run foreman-mcp-server \
   --log-level debug \
   --host localhost \
   --port 8080 \
-  --transport streamable-http
+  --transport stdio
   --no-verify-ssl
 ```
 
 Default values if not provided:
 ```shell
   --foreman-url https://$hostname
-  --foreman-username admin
-  --foreman-password changeme
   --log-level INFO
   --host '127.0.0.1'
   --port 8080
@@ -43,8 +41,6 @@ Now run the container:
 ```shell
 podman run -it -p 8080:8080 foreman-mcp-server \
   --foreman-url https://my-foreman-instance.something.somewhere \
-  --foreman-username $FOREMAN_USERNAME \
-  --foreman-password $FOREMAN_PASSWORD \
   --log-level debug \
   --host localhost \
   --port 8080 \
@@ -59,7 +55,12 @@ podman run -it -p 8080:8080 foreman-mcp-server \
     "mcp": {
         "servers": {
             "foreman": {
-                "url": "http://127.0.0.1:8080/mcp/sse"
+                "url": "http://127.0.0.1:8080/mcp/sse",
+                "type": "http",
+                  "headers": {
+                    "FOREMAN_USERNAME": "login",
+                    "FOREMAN_TOKEN": "token"
+                  }
             }
         }
     },
@@ -105,7 +106,7 @@ Note: this is highly experimental. Tested in a virtual machine running CentOS St
   "mcpServers": {
     "foreman": {
       "command": "uv",
-      "args": ["--directory", "/home/$USER/foreman-mcp-server", "run","foreman-mcp-server", "--transport", "stdio"],
+      "args": ["--directory", "/home/$USER/foreman-mcp-server", "run","foreman-mcp-server", "--transport", "stdio", "--foreman-username", "login", "--foreman-password", "password/token"],
     }
   }
 }
