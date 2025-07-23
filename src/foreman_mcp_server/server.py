@@ -68,7 +68,7 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
     help="Transport protocol to use (streamable-http, stdio)",
 )
 @click.option(
-    "--verify-ssl",
+    "--verify-ssl/--no-verify-ssl",
     default=True,
     is_flag=True,
     help="Verify SSL certificates when connecting to Foreman API.",
@@ -83,7 +83,7 @@ def main(
     foreman_username: str,
     foreman_password: str,
     transport: str,
-    verify_ssl: bool = True,
+    verify_ssl: bool,
 ) -> int:
     """Run the Foreman MCP server."""
 

@@ -15,6 +15,7 @@ uv run foreman-mcp-server \
   --host localhost \
   --port 8080 \
   --transport streamable-http
+  --no-verify-ssl
 ```
 
 Default values if not provided:
@@ -26,6 +27,7 @@ Default values if not provided:
   --host '127.0.0.1'
   --port 8080
   --transport streamable-http
+  --verify-ssl
 ```
 
 ## Start the server via podman
