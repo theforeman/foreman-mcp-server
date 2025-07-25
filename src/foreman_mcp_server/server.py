@@ -48,7 +48,7 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
 )
 @click.option(
     "--host",
-    default="0.0.0.0",
+    default="127.0.0.1",
     help="Host to listen on for HTTP",
     envvar="HOST",
     show_default=True,
