@@ -11,6 +11,7 @@ COPY ./ ./
 RUN uv sync
 
 EXPOSE 8080/tcp
+ENV HOST=0.0.0.0
 
 ENTRYPOINT ["uv", "run", "foreman-mcp-server"]
 
