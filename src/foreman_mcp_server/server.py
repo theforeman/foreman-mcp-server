@@ -39,18 +39,33 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
 
 
 @click.command()
-@click.option("--port", default=8080, help="Port to listen on for HTTP")
-@click.option("--host", default="127.0.0.1", help="Host to listen on for HTTP")
+@click.option(
+    "--port",
+    default=8080,
+    help="Port to listen on for HTTP",
+    envvar="PORT",
+    show_default=True,
+)
+@click.option(
+    "--host",
+    default="0.0.0.0",
+    help="Host to listen on for HTTP",
+    envvar="HOST",
+    show_default=True,
+)
 @click.option(
     "--log-level",
     default="INFO",
     help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     callback=normalize_log_level,
+    show_default=True,
 )
 @click.option(
     "--foreman-url",
     default=f"https://{socket.gethostname()}",
     help="Foreman URL to connect to",
+    envvar="FOREMAN_URL",
+    show_default=True,
 )
 @click.option(
     "--foreman-username",
@@ -66,12 +81,14 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
     "--transport",
     default="streamable-http",
     help="Transport protocol to use (streamable-http, stdio)",
+    show_default=True,
 )
 @click.option(
     "--verify-ssl/--no-verify-ssl",
     default=True,
     is_flag=True,
     help="Verify SSL certificates when connecting to Foreman API.",
+    show_default=True,
 )
 @click.pass_context
 def main(
