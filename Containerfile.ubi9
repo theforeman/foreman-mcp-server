@@ -17,7 +17,10 @@ LABEL url="https://www.redhat.com"
 LABEL name="foreman-mcp-server" \
       description="A MCP server for Satellite" \
       summary="A MCP server for Satellite"
-LABEL com.redhat.component="foreman-mcp-server"
+LABEL com.redhat.component="foreman-mcp-server" \
+      io.k8s.display-name="Satellite MCP Server" \
+      io.k8s.description="This adds the satellite/foreman-mcp-server-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/foreman-mcp-server-rhel9" \
+      io.openshift.tags="satellite mcp"
 
 EXPOSE 8080/tcp
 ENV HOST=0.0.0.0
