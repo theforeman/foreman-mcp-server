@@ -7,7 +7,7 @@ COPY LICENSE /licenses
 
 USER 1001
 
-COPY --chown=1001:0 requirements-build.txt pyproject.toml .
+COPY --chown=1001:0 requirements-build.txt pyproject.toml ./
 COPY --chown=1001:0 src src
 COPY --chown=1001:0 README.md .
 
@@ -18,6 +18,9 @@ LABEL name="foreman-mcp-server" \
       description="A MCP server for Satellite" \
       summary="A MCP server for Satellite"
 LABEL com.redhat.component="foreman-mcp-server"
+
+EXPOSE 8080/tcp
+ENV HOST=0.0.0.0
 
 CMD python -m foreman_mcp_server
 
