@@ -29,7 +29,7 @@ jobs:
 
     - name: Regenerate requirements-build.txt from uv.lock
       run: |
-        uv export --locked --format requirements.txt --output-file requirements-build.txt
+        make generate-requirements
 
     - name: Compare regenerated file with original
       run: |
@@ -37,7 +37,7 @@ jobs:
           echo "ERROR: requirements-build.txt is not in sync with uv.lock"
           echo ""
           echo "The differences above show what needs to be updated."
-          echo "To fix this, run: uv export --locked --format requirements.txt --output-file requirements-build.txt"
+          echo "To fix this, run: make generate-requirements"
           exit 1
         else
           echo "requirements-build.txt is in sync with uv.lock"
