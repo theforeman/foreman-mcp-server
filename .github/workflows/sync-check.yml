@@ -1,0 +1,44 @@
+name: Check uv.lock and requirements-build.txt sync
+
+on: [push, pull_request]
+
+concurrency:
+  group: ${{ github.ref_name }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  check-sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: Copy original requirements-build.txt for comparison
+      run: |
+        cp requirements-build.txt requirements-build-original.txt
+
+    - name: Regenerate requirements-build.txt from uv.lock
+      run: |
+        uv export --locked --format requirements.txt --output-file requirements-build.txt
+
+    - name: Compare regenerated file with original
+      run: |
+        if ! diff -u requirements-build-original.txt requirements-build.txt; then
+          echo "ERROR: requirements-build.txt is not in sync with uv.lock"
+          echo ""
+          echo "The differences above show what needs to be updated."
+          echo "To fix this, run: uv export --locked --format requirements.txt --output-file requirements-build.txt"
+          exit 1
+        else
+          echo "requirements-build.txt is in sync with uv.lock"
+        fi
