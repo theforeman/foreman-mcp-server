@@ -20,10 +20,6 @@ dev = [
     "ruff>=0.6.0",
     "pytest>=8.0.0",
 ]
-build = [
-    "hatchling>=1.27.0",
-    "setuptools>=40.8.0",
-]
 
 [project.scripts]
 foreman-mcp-server = "foreman_mcp_server.__main__:main"
