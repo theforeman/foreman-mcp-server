@@ -19,6 +19,8 @@ dependencies = [
 dev = [
     "ruff>=0.6.0",
     "pytest>=8.0.0",
+    # temporarily lock pip behind 25.1 (pybuild-deps will require a change)
+    "pip<25.1",
 ]
 
 [project.scripts]
