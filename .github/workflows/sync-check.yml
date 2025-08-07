@@ -23,6 +23,9 @@ jobs:
       with:
         enable-cache: true
 
+    - name: Ensure pybuild-deps cache directory exists
+      run: mkdir -p /home/runner/.cache/pybuild-deps
+
     - name: Copy original requirements-build.txt for comparison
       run: |
         cp requirements-build.txt requirements-build-original.txt
