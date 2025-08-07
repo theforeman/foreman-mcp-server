@@ -25,7 +25,7 @@ jobs:
         python-version: 3.12
 
     - name: Ensure pybuild-deps cache directory exists
-      run: mkdir -p /home/runner/.cache/pybuild-deps
+      run: mkdir -p ~/.cache/pybuild-deps
 
     - name: Copy original requirements-build.txt for comparison
       run: |
