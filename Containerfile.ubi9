@@ -29,5 +29,4 @@ LABEL com.redhat.component="foreman-mcp-server" \
 EXPOSE 8080/tcp
 ENV HOST=0.0.0.0
 
-CMD python -m foreman_mcp_server
-
+ENTRYPOINT ["python", "-m", "foreman_mcp_server"]
