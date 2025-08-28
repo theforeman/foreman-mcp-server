@@ -10,3 +10,6 @@ wheels/
 .venv
 
 .vscode
+
+katello-server-ca.crt
+.mcp.json

@@ -14,7 +14,7 @@ uv run foreman-mcp-server \
   --log-level debug \
   --host localhost \
   --port 8080 \
-  --transport stdio
+  --transport stdio \
   --no-verify-ssl
 ```
 
@@ -26,6 +26,28 @@ Default values if not provided:
   --port 8080
   --transport streamable-http
   --verify-ssl
+```
+
+### Using custom CA certificates
+
+If your Foreman instance uses a custom CA certificate, you have several options:
+
+1. Use the `--ca-bundle` option or `FOREMAN_CA_BUNDLE` environment variable:
+```shell
+uv run foreman-mcp-server \
+  --foreman-url https://foreman.example.com \
+  --foreman-username $FOREMAN_USERNAME \
+  --foreman-password $FOREMAN_PASSWORD \
+  --ca-bundle /path/to/ca-bundle.pem
+```
+
+2. Place your CA certificate as `./ca.pem` in the working directory (automatically detected):
+```shell
+cp /path/to/ca-bundle.pem ./ca.pem
+uv run foreman-mcp-server \
+  --foreman-url https://foreman.example.com \
+  --foreman-username $FOREMAN_USERNAME \
+  --foreman-password $FOREMAN_PASSWORD
 ```
 
 ## Start the server via podman
@@ -44,6 +66,37 @@ podman run -it -p 8080:8080 foreman-mcp-server \
   --log-level debug \
   --host localhost \
   --port 8080 \
+  --transport streamable-http
+```
+
+### Using custom CA certificates with containers
+
+To use custom CA certificates with the container, you can either mount your CA bundle to the default `ca.pem` location (automatically detected) or specify a custom path:
+
+**Option 1: Mount to default location (recommended)**
+```shell
+# Standard container - mount to /app/ca.pem
+podman run -it -p 8080:8080 \
+  -v /path/to/your-ca-bundle.pem:/app/ca.pem:ro \
+  foreman-mcp-server \
+  --foreman-url https://my-foreman-instance.something.somewhere \
+  --transport streamable-http
+
+# UBI9 image - mount to /opt/app-root/src/ca.pem  
+podman run -it -p 8080:8080 \
+  -v /path/to/your-ca-bundle.pem:/opt/app-root/src/ca.pem:ro \
+  foreman-mcp-server \
+  --foreman-url https://my-foreman-instance.something.somewhere \
+  --transport streamable-http
+```
+
+**Option 2: Mount to custom location**
+```shell
+podman run -it -p 8080:8080 \
+  -v /path/to/your-ca-bundle.pem:/custom/ca.pem:ro \
+  foreman-mcp-server \
+  --foreman-url https://my-foreman-instance.something.somewhere \
+  --ca-bundle /custom/ca.pem \
   --transport streamable-http
 ```
 
@@ -107,6 +160,19 @@ Note: this is highly experimental. Tested in a virtual machine running CentOS St
     "foreman": {
       "command": "uv",
       "args": ["--directory", "/home/$USER/foreman-mcp-server", "run","foreman-mcp-server", "--transport", "stdio", "--foreman-username", "login", "--foreman-password", "password/token"],
+    }
+  }
+}
+```
+
+To use custom CA certificates with Claude Desktop:
+```
+# ~/.config/Claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "foreman": {
+      "command": "uv",
+      "args": ["--directory", "/home/$USER/foreman-mcp-server", "run","foreman-mcp-server", "--transport", "stdio", "--foreman-username", "login", "--foreman-password", "password/token", "--ca-bundle", "/path/to/ca-bundle.pem"],
     }
   }
 }
