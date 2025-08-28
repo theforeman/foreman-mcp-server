@@ -1,5 +1,6 @@
 import logging
 import socket
+from pathlib import Path
 
 import apypie
 import click
@@ -90,6 +91,11 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
     help="Verify SSL certificates when connecting to Foreman API.",
     show_default=True,
 )
+@click.option(
+    "--ca-bundle",
+    help="Path to CA certificate bundle file for SSL verification. If not specified, ./ca.pem will be used if it exists, otherwise system default CA bundle is used.",
+    envvar="FOREMAN_CA_BUNDLE",
+)
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -101,6 +107,7 @@ def main(
     foreman_password: str,
     transport: str,
     verify_ssl: bool,
+    ca_bundle: str,
 ) -> int:
     """Run the Foreman MCP server."""
 
@@ -117,6 +124,16 @@ def main(
         ctx.exit(1)
 
     mcp = FastMCP(name="Foreman MCP Server")
+
+    # Resolve CA bundle path - check for ./ca.pem if none specified
+    if ca_bundle is None:
+        default_ca_path = Path.cwd() / "ca.pem"
+        if default_ca_path.exists():
+            ca_bundle = str(default_ca_path)
+
+    # apypie expects certificate path as verify_ssl parameter, not ca_bundle
+    if ca_bundle:
+        verify_ssl = ca_bundle
 
     foreman_api = None
     if transport == "stdio":

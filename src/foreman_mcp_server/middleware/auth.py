@@ -3,7 +3,7 @@ from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 
 class AuthMiddleware(Middleware):
-    def __init__(self, foreman_url: str, verify_ssl: bool = True):
+    def __init__(self, foreman_url: str, verify_ssl):
         # TODO: user_map can grow indefinitely, consider using a more efficient structure or cleanup mechanism
         self.user_map = {}
         self.foreman_url = foreman_url
