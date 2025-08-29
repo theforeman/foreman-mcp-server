@@ -17,7 +17,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
@@ -32,9 +32,12 @@ jobs:
       run: |
         uv sync --dev
 
-    - name: Run linting with ruff
+    - name: Run linting with ruff check
       run: |
         uv run ruff check .
+
+    - name: Run format with ruff format
+      run: |
         uv run ruff format --check .
 
   test:
@@ -42,10 +45,10 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.12']
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
