@@ -77,14 +77,14 @@ To use custom CA certificates with the container, you can either mount your CA b
 ```shell
 # Standard container - mount to /app/ca.pem
 podman run -it -p 8080:8080 \
-  -v /path/to/your-ca-bundle.pem:/app/ca.pem:ro \
+  -v /path/to/your-ca-bundle.pem:/app/ca.pem:ro,Z \
   foreman-mcp-server \
   --foreman-url https://my-foreman-instance.something.somewhere \
   --transport streamable-http
 
 # UBI9 image - mount to /opt/app-root/src/ca.pem  
 podman run -it -p 8080:8080 \
-  -v /path/to/your-ca-bundle.pem:/opt/app-root/src/ca.pem:ro \
+  -v /path/to/your-ca-bundle.pem:/opt/app-root/src/ca.pem:ro,Z \
   foreman-mcp-server \
   --foreman-url https://my-foreman-instance.something.somewhere \
   --transport streamable-http
@@ -93,7 +93,7 @@ podman run -it -p 8080:8080 \
 **Option 2: Mount to custom location**
 ```shell
 podman run -it -p 8080:8080 \
-  -v /path/to/your-ca-bundle.pem:/custom/ca.pem:ro \
+  -v /path/to/your-ca-bundle.pem:/custom/ca.pem:ro,Z \
   foreman-mcp-server \
   --foreman-url https://my-foreman-instance.something.somewhere \
   --ca-bundle /custom/ca.pem \
