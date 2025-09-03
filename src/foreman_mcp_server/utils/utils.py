@@ -40,12 +40,15 @@ def mcp_info_headers(get_context) -> dict:
     """Returns MCP info headers for the request."""
 
     ctx = get_context()
-    return {
-        "X-Foreman-MCP-Server-Host": f"{ctx.request_context.request.client.host}:{ctx.request_context.request.client.port}",
-        "X-Foreman-MCP-Server-MCP-Session-ID": ctx.request_context.request.headers.get(
-            "mcp-session-id"
-        ),
-    }
+    if ctx.request_context.request:
+        return {
+            "X-Foreman-MCP-Server-Host": f"{ctx.request_context.request.client.host}:{ctx.request_context.request.client.port}",
+            "X-Foreman-MCP-Server-MCP-Session-ID": ctx.request_context.request.headers.get(
+                "mcp-session-id"
+            ),
+        }
+    else:
+        return {}
 
 
 def get_foreman_api(get_context) -> ForemanApi:
