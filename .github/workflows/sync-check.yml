@@ -1,6 +1,12 @@
 name: Check uv.lock and requirements-build.txt sync
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - 'uv.lock'
+  pull_request:
+    paths:
+      - 'uv.lock'
 
 concurrency:
   group: ${{ github.ref_name }}-${{ github.workflow }}
