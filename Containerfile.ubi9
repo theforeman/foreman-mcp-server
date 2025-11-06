@@ -7,6 +7,9 @@ COPY LICENSE /licenses
 
 RUN microdnf install -y cargo libffi-devel openssl-devel python3.12-devel
 
+RUN mkdir app
+WORKDIR /app
+
 USER 1001
 
 COPY --chown=1001:0 requirements.txt requirements-build.txt pyproject.toml ./
