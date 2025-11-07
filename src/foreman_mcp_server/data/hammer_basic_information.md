@@ -14,7 +14,7 @@ To get help for any hammer command, use:
 - `hammer <subcommand> <action> --help` - Show help for a specific action
 
 ## Common Subcommands
-- TODO
+- `hammer organization` - See the `hammer_organization_info` resource for more information
 
 ## Examples
 - `hammer --help` - Display all possible subcommands

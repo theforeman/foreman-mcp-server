@@ -1,8 +1,7 @@
-import asyncio
-
 from fastmcp.tools.tool import ToolResult
 
 from ..utils.content_utils import build_tool_result
+from ..utils.hammer_utils import execute_hammer_command, get_user_credentials
 
 
 def build_success_structured_content(
@@ -30,7 +29,7 @@ def build_failure_structured_content(
     }
 
 
-def register_hammer_commands(mcp, _foreman_api, _get_context):
+def register_hammer_commands(mcp, foreman_api, _get_context):
     """Register hammer CLI command execution tools."""
 
     @mcp.tool(
@@ -48,28 +47,24 @@ def register_hammer_commands(mcp, _foreman_api, _get_context):
         },
     )
     async def execute_hammer(command: str) -> ToolResult:
-        process = await asyncio.create_subprocess_exec(
-            "hammer",
-            *command.split(),
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
+        # Get user credentials
+        username, password, foreman_url = get_user_credentials(
+            _get_context, foreman_api
         )
 
-        stdout, stderr = await process.communicate()
+        # Execute hammer command using shared utility
+        success, output, *rest = await execute_hammer_command(
+            command, username, password, foreman_url
+        )
 
-        # Decode output
-        stdout_text = stdout.decode("utf-8") if stdout else ""
-        stderr_text = stderr.decode("utf-8") if stderr else ""
-
-        if process.returncode == 0:
+        if success:
+            returncode = rest[0] if rest else 0
             return build_tool_result(
-                build_success_structured_content(
-                    command, stdout_text, process.returncode
-                )
+                build_success_structured_content(command, output, returncode)
             )
         else:
+            error = rest[0] if rest else ""
+            returncode = rest[1] if len(rest) > 1 else 1
             return build_tool_result(
-                build_failure_structured_content(
-                    command, stdout_text, stderr_text, process.returncode
-                )
+                build_failure_structured_content(command, output, error, returncode)
             )

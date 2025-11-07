@@ -69,3 +69,21 @@ def register_hammer_docs(mcp, _foreman_api, _get_context):
             return stdout.decode("utf-8")
         else:
             return f"error: Hammer CLI help command failed with error: {stderr.decode('utf-8')}"
+
+    @mcp.resource(
+        name="Hammer CLI Organization Info",
+        description="Provides detailed information on actions and parameters within the `hammer organization` subcommand.",
+        uri="hammer://organization-info",
+        mime_type="text/markdown",
+    )
+    async def hammer_organization_info() -> str:
+        try:
+            data_path = files("foreman_mcp_server").joinpath(
+                "data/hammer_organization_help.md"
+            )
+            async with aiofiles.open(data_path) as f:
+                return await f.read()
+        except FileNotFoundError:
+            return "error: Hammer CLI organization help file not found."
+        except Exception as e:
+            return f"error: Failed to read Hammer CLI organization help: {str(e)}"
