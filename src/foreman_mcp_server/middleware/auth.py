@@ -11,7 +11,7 @@ class AuthMiddleware(Middleware):
 
     async def on_request(self, context: MiddlewareContext, call_next):
         # Add the foreman_api to the context for use in tools
-        if context.fastmcp_context:
+        if context.fastmcp_context and context.fastmcp_context.request_context:
             foreman_username = (
                 context.fastmcp_context.request_context.request.headers.get(
                     "foreman_username"
