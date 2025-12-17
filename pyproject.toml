@@ -12,7 +12,7 @@ dependencies = [
     "aiofiles>=24.1.0",
     "apypie>=0.7.1",
     "fastmcp>=2.13.2",
-    "rpds-py==0.24.0",
+    "rpds-py==0.30.0",
 ]
 
 [dependency-groups]
