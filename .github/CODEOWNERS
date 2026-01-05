@@ -1,0 +1,14 @@
+* @theforeman/mcp
+
+# CODEOWNERS for foreman-mcp-server
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Packaging and CI/CD related files
+.renovaterc.json        @theforeman/packaging @theforeman/mcp
+Containerfile           @theforeman/packaging @theforeman/mcp
+Containerfile.ubi9      @theforeman/packaging @theforeman/mcp
+pyproject.toml          @theforeman/packaging @theforeman/mcp
+requirements.txt        @theforeman/packaging @theforeman/mcp
+requirements-build.txt  @theforeman/packaging @theforeman/mcp
+uv.lock                 @theforeman/packaging @theforeman/mcp
+/.tekton/               @theforeman/packaging @theforeman/mcp
