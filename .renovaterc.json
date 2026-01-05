@@ -1,11 +1,30 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base"],
+  "extends": ["config:recommended"],
+  "constraints": {
+    "python": "==3.12"
+  },
   "packageRules": [
     {
-      "matchPackagePatterns": ["*"],
-      "groupName": "all dependencies",
-      "groupSlug": "all"
+      "description": "Group all Python dependencies from pyproject.toml",
+      "matchManagers": ["pep621", "pip_requirements", "pip-compile"],
+      "matchFileNames": ["pyproject.toml", "requirements*.txt", "uv.lock"],
+      "groupName": "python dependencies",
+      "groupSlug": "python-deps"
+    },
+    {
+      "description": "Containerfile.ubi9 updates in separate PR",
+      "matchFileNames": ["Containerfile.ubi9"],
+      "groupName": "containerfile-ubi9",
+      "groupSlug": "containerfile-ubi9"
+    },
+    {
+      "description": "Tekton pipeline updates in separate PR",
+      "matchFileNames": [".tekton/**"],
+      "groupName": "tekton pipelines",
+      "groupSlug": "tekton"
     }
-  ]
+  ],
+  "separateMajorMinor": true,
+  "separateMinorPatch": false
 }
