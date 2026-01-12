@@ -355,13 +355,13 @@ packaging==26.0 \
     #   hatchling
     #   setuptools-scm
     #   wheel
-pathspec==1.0.3 \
-    --hash=sha256:bac5cf97ae2c2876e2d25ebb15078eb04d76e4b98921ee31c6f85ade8b59444d \
-    --hash=sha256:e80767021c1cc524aa3fb14bedda9c34406591343cc42797b386ce7b9354fb6c
+pathspec==1.0.4 \
+    --hash=sha256:0210e2ae8a21a9137c0d470578cb0e595af87edaa6ebf12ff176f14a02e0e645 \
+    --hash=sha256:fb6ae2fd4e7c921a165808a552060e722767cfa526f99ca5156ed2ce45a5c723
     # via hatchling
-pdm-backend==2.4.6 \
-    --hash=sha256:4427c235d9ee84afd23a376a0961e5b9ad7e1db09039127b71b2053d19185784 \
-    --hash=sha256:5dd9cd581a4f18d57ff506a5b3aad7c8df31e5949b6fd854bbc34c38107e4532
+pdm-backend==2.4.7 \
+    --hash=sha256:1599e3afa6f229b30cb4d3bd9caeca42229c42eb5730abd13e0b5256ec93c9f7 \
+    --hash=sha256:a509d083850378ce919d41e7a2faddfc57a1764d376913c66731125d6b14110f
     # via typer
 pdm-pep517==1.1.4 \
     --hash=sha256:7f49121e70b42dca296fac962210dd2da07a39575fc5673137ad661633b2cf3f \
@@ -371,9 +371,9 @@ pluggy==1.6.0 \
     --hash=sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3 \
     --hash=sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746
     # via hatchling
-poetry-core==2.3.0 \
-    --hash=sha256:f6da8f021fe380d8c9716085f4dcc5d26a5120a2452e077196333892af5de307 \
-    --hash=sha256:fc42f3854e346e4b96fb2b38d29e6873ec2ed25fbd7b8f1afba06613a966eaef
+poetry-core==2.3.1 \
+    --hash=sha256:96f791d5d7d4e040f3983d76779425cf9532690e2756a24fd5ca0f86af19ef82 \
+    --hash=sha256:db1cf63b782570deb38bfba61e2304a553eef0740dc17959a50cc0f5115ee634
     # via
     #   dunamai
     #   jsonschema-path
