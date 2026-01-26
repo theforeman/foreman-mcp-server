@@ -22,7 +22,8 @@ RUN pip install -r requirements.txt && \
 LABEL url="https://www.redhat.com"
 LABEL name="foreman-mcp-server" \
       description="A MCP server for Satellite" \
-      summary="A MCP server for Satellite"
+      summary="A MCP server for Satellite" \
+      cpe="cpe:/a:redhat:satellite:6.18::el9"
 LABEL com.redhat.component="foreman-mcp-server" \
       io.k8s.display-name="Satellite MCP Server" \
       io.k8s.description="This adds the satellite/foreman-mcp-server-rhel9 image to the Red Hat container registry. To pull this container image, run the following command: podman pull registry.stage.redhat.io/satellite/foreman-mcp-server-rhel9" \
