@@ -1,5 +1,9 @@
 import json
+from collections.abc import Callable, Sequence
 
+import apypie
+from fastmcp import FastMCP
+from fastmcp.exceptions import ToolError
 from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
 
@@ -7,7 +11,12 @@ from ..utils.content_utils import build_tool_result
 from ..utils.utils import get_foreman_api, mcp_info_headers
 
 
-def register_remote_execution_tools(mcp, foreman_api, get_context):
+def register_remote_execution_tools(
+    mcp: FastMCP,
+    foreman_api: apypie.ForemanApi | None,
+    get_context: Callable,
+    allowed_rex_features: Sequence[str] = (),
+) -> None:
     @mcp.tool(
         description="""Triggers a remote execution job on Foreman using a remote execution feature.
 
@@ -42,6 +51,13 @@ Returns the job invocation ID and task ID for polling.""",
             inputs: Optional dictionary of template inputs (varies by template)
             description: Optional description for the job invocation
         """
+        # Validate feature against allowlist
+        if feature not in allowed_rex_features:
+            raise ToolError(
+                f"Feature '{feature}' is not allowed. "
+                f"Allowed features: {', '.join(allowed_rex_features)}"
+            )
+
         try:
             api = foreman_api or get_foreman_api(get_context)
 

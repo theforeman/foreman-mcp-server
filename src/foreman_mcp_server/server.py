@@ -25,6 +25,13 @@ def normalize_log_level(_ctx, _param, value):
     return value
 
 
+def parse_comma_separated_list(_ctx, _param, value):
+    """Parse a comma-separated string into a list of stripped values."""
+    if not value:
+        return []
+    return [item.strip() for item in value.split(",") if item.strip()]
+
+
 def assert_server_mode(foreman_username: str, foreman_password: str, transport: str):
     """Assert that the server is running in the correct mode."""
     if transport == "streamable-http":
@@ -96,6 +103,14 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
     help="Path to CA certificate bundle file for SSL verification. If not specified, ./ca.pem will be used if it exists, otherwise system default CA bundle is used.",
     envvar="FOREMAN_CA_BUNDLE",
 )
+@click.option(
+    "--allowed-rex-features",
+    default="katello_errata_install,katello_errata_install_by_search",
+    help="Comma-separated list of allowed remote execution feature labels.",
+    envvar="FOREMAN_ALLOWED_REX_FEATURES",
+    show_default=True,
+    callback=parse_comma_separated_list,
+)
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -108,6 +123,7 @@ def main(
     transport: str,
     verify_ssl: bool,
     ca_bundle: str,
+    allowed_rex_features: list[str],
 ) -> int:
     """Run the Foreman MCP server."""
 
@@ -135,7 +151,7 @@ def main(
     if ca_bundle:
         verify_ssl = ca_bundle
 
-    register_tools(mcp)
+    register_tools(mcp, allowed_rex_features)
     register_resources(mcp)
     register_prompts(mcp)
 
