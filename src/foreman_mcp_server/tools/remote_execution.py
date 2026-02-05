@@ -9,7 +9,15 @@ from ..utils.utils import get_foreman_api, mcp_info_headers
 
 def register_remote_execution_tools(mcp, foreman_api, get_context):
     @mcp.tool(
-        description="Triggers a remote execution job on Foreman. Returns the job invocation ID and task ID for polling.",
+        description="""Triggers a remote execution job on Foreman using a remote execution feature.
+
+Before using this tool, the agent should:
+1. Use call_foreman_api_get to list remote execution features (resource: "remote_execution_features", action: "index")
+2. Pick the appropriate feature for the task
+3. Use call_foreman_api_get to read the feature's associated job template (resource: "job_templates", action: "show", params: {"id": <job_template_id from feature>}) to see what inputs it accepts
+4. Call this tool with the feature label and appropriate inputs
+
+Returns the job invocation ID and task ID for polling.""",
         tags=("foreman", "api", "post", "remote-execution", "job"),
         annotations={
             "title": "Trigger Remote Execution Job",
@@ -20,16 +28,16 @@ def register_remote_execution_tools(mcp, foreman_api, get_context):
         },
     )
     async def trigger_remote_execution_job(
-        job_template_id: int,
+        feature: str,
         search_query: str,
         inputs: dict | None = None,
         description: str | None = None,
     ) -> ToolResult:
         """
-        Trigger a remote execution job on target hosts.
+        Trigger a remote execution job on target hosts using a remote execution feature.
 
         Args:
-            job_template_id: The ID of the job template to use
+            feature: The remote execution feature label (e.g., "katello_errata_install")
             search_query: Host search query (e.g., "installable_errata = RHSA-2025:1234")
             inputs: Optional dictionary of template inputs (varies by template)
             description: Optional description for the job invocation
@@ -40,7 +48,7 @@ def register_remote_execution_tools(mcp, foreman_api, get_context):
             # Build the job invocation payload
             job_invocation_params = {
                 "job_invocation": {
-                    "job_template_id": job_template_id,
+                    "feature": feature,
                     "targeting_type": "static_query",
                     "search_query": search_query,
                 }

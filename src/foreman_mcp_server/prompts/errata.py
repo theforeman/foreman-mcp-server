@@ -29,34 +29,38 @@ Follow these steps:
 
    **IMPORTANT**: Do NOT proceed to trigger the job until I explicitly confirm which hosts to target.
 
-3. **Find the appropriate job template**: Once I confirm the target hosts, use call_foreman_api_get to list available job templates:
-   - Resource: "job_templates"
+3. **Find the appropriate remote execution feature**: Once I confirm the target hosts, use call_foreman_api_get to list remote execution features:
+   - Resource: "remote_execution_features"
    - Action: "index"
-   - Params: {{"search": "name ~ errata"}}
 
-   Look for a template that applies or installs errata (common names include "Install Errata - Katello Script Default" or similar).
+   Look for a feature related to errata installation (e.g., "katello_errata_install").
 
-4. **Trigger the remote execution job**: Use the trigger_remote_execution_job tool with:
-   - job_template_id: The ID of the errata installation template
+4. **Get template inputs**: Use call_foreman_api_get to read the feature's associated job template to see what inputs it accepts:
+   - Resource: "job_templates"
+   - Action: "show"
+   - Params: {{"id": <job_template_id from the feature>}}
+
+5. **Trigger the remote execution job**: Use the trigger_remote_execution_job tool with:
+   - feature: The remote execution feature label (e.g., "katello_errata_install")
    - search_query: Use the search query based on my selection:
      - If ALL hosts: "installable_errata = {errata_id}"
      - If SUBSET: combine with my specified criteria (e.g., "installable_errata = {errata_id} AND name ~ myhost")
    - inputs: {{"errata": "{errata_id}"}} (adjust based on template requirements)
    - description: "Apply errata {errata_id}"
 
-5. **Wait for completion**: Use the poll_task tool with the task_id returned from the job invocation. Use a reasonable timeout based on the number of hosts.
+6. **Wait for completion**: Use the poll_task tool with the task_id returned from the job invocation. Use a reasonable timeout based on the number of hosts.
 
-6. **Check results**: After the task completes, use call_foreman_api_get to get job details:
+7. **Check results**: After the task completes, use call_foreman_api_get to get job details:
    - Resource: "job_invocations"
    - Action: "show"
    - Params: {{"id": <job_invocation_id>}}
 
-7. **Report summary**: Provide me with:
+8. **Report summary**: Provide me with:
    - Number of hosts targeted
    - Number of successful/failed hosts
    - Overall job status
 
-8. **Investigate failures** (if any): If hosts failed, use call_foreman_api_get to get host-specific output:
+9. **Investigate failures** (if any): If hosts failed, use call_foreman_api_get to get host-specific output:
    - Resource: "job_invocations"
    - Action: "outputs"
    - Params: {{"id": <job_invocation_id>, "host_status": "failed"}}
