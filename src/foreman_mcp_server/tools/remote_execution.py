@@ -21,7 +21,7 @@ def register_remote_execution_tools(
         description="""Triggers a remote execution job on Foreman using a remote execution feature.
 
 Before using this tool, the agent should:
-1. Use call_foreman_api_get to list remote execution features (resource: "remote_execution_features", action: "index")
+1. Read the "Allowed Remote Execution Features" resource (foreman://remote_execution/allowed_features) to see available features
 2. Pick the appropriate feature for the task
 3. Use call_foreman_api_get to read the feature's associated job template (resource: "job_templates", action: "show", params: {"id": <job_template_id from feature>}) to see what inputs it accepts
 4. Call this tool with the feature label and appropriate inputs

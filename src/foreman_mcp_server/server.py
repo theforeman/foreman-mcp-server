@@ -152,7 +152,7 @@ def main(
         verify_ssl = ca_bundle
 
     register_tools(mcp, allowed_rex_features)
-    register_resources(mcp)
+    register_resources(mcp, allowed_rex_features)
     register_prompts(mcp)
 
     foreman_api = None
