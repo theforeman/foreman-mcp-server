@@ -1,6 +1,8 @@
 import json
 from typing import Any
 
+from fastmcp.dependencies import CurrentContext
+from fastmcp.server.context import Context
 from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
 
@@ -14,7 +16,7 @@ from ..utils.utils import (
 
 
 # TODO: Probably split it into multiple tools (read-only, destructive, etc)
-def register_foreman_api_methods(mcp, foreman_api, get_context):
+def register_foreman_api_methods(mcp, foreman_api):
     @mcp.tool(
         description="Calls GET action on Foreman API.",
         tags=("foreman", "api", "get", "resource", "remote"),
@@ -27,21 +29,24 @@ def register_foreman_api_methods(mcp, foreman_api, get_context):
         },
     )
     async def call_foreman_api_get(
-        resource: str, action: str, params: dict
+        resource: str,
+        action: str,
+        params: dict,
+        ctx: Context = CurrentContext(),
     ) -> ToolResult:
         try:
-            api = foreman_api or get_foreman_api(get_context)
+            api = foreman_api or get_foreman_api(ctx)
             await assert_resource(
                 resource,
                 {"name": "Resource", "list_name": "resources", "type": "api"},
-                get_context,
+                ctx,
             )
             assert_http_method(
                 api,
                 {"name": action, "resource": resource, "params": params},
                 "get",
             )
-            response = api.call(resource, action, params, mcp_info_headers(get_context))
+            response = api.call(resource, action, params, mcp_info_headers(ctx))
             return format_success_response(resource, action, response)
         except Exception as e:
             return format_failure_response(resource, action, e)

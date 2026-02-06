@@ -8,10 +8,10 @@ from .foreman_template_resources import register_foreman_template_resources
 # TODO: Maybe local logs can be a resource?
 
 
-def register_resources(mcp, foreman_api, get_context):
+def register_resources(mcp, foreman_api):
     """Register all Foreman resources with the MCP server."""
-    register_foreman_api_resources(mcp, foreman_api, get_context)
-    register_foreman_api_resource_docs(mcp, foreman_api, get_context)
+    register_foreman_api_resources(mcp, foreman_api)
+    register_foreman_api_resource_docs(mcp, foreman_api)
     register_foreman_dsl_sections(mcp, foreman_api)
-    register_foreman_dsl_docs(mcp, foreman_api, get_context)
-    register_foreman_template_resources(mcp, foreman_api, get_context)
+    register_foreman_dsl_docs(mcp, foreman_api)
+    register_foreman_template_resources(mcp, foreman_api)

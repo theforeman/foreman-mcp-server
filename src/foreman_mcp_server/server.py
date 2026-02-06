@@ -5,7 +5,6 @@ from pathlib import Path
 import apypie
 import click
 from fastmcp import FastMCP
-from fastmcp.server.dependencies import get_context
 from fastmcp.settings import LOG_LEVEL
 from fastmcp.utilities.logging import configure_logging
 
@@ -143,9 +142,9 @@ def main(
             password=foreman_password,
             verify_ssl=verify_ssl,
         )
-    register_tools(mcp, foreman_api, get_context)
-    register_resources(mcp, foreman_api, get_context)
-    register_prompts(mcp, foreman_api, get_context)
+    register_tools(mcp, foreman_api)
+    register_resources(mcp, foreman_api)
+    register_prompts(mcp, foreman_api)
 
     # TODO: We should've probably used https://gofastmcp.com/servers/middleware#error-handling-middleware for error handling
     if transport == "streamable-http":

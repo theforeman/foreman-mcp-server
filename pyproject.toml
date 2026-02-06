@@ -88,6 +88,7 @@ ignore = [
     "E501",  # Line too long, handled by formatter
     "T201",  # Allow print statements
     "T203",  # Allow pprint statements
+    "B008",  # Allow function calls in default arguments (required for FastMCP's CurrentContext())
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

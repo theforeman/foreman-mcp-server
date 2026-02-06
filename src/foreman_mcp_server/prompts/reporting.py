@@ -1,4 +1,4 @@
-def register_reporting_prompts(mcp, _foreman_api, _get_context):
+def register_reporting_prompts(mcp, _foreman_api):
     @mcp.prompt(
         name="Basic Subnets Static Report",
         description="A prompt for generating a static report of all subnets in Foreman.",
