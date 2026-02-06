@@ -2,15 +2,15 @@
 
 from apypie import ForemanApi
 from apypie.resource import Resource
+from fastmcp import Context
 from fastmcp.exceptions import ToolError
 
 
 async def assert_resource(
-    to_check: str, resource_info: dict, get_context
+    to_check: str, resource_info: dict, ctx: Context
 ) -> bool | None:
     """Checks if a specific resource is available in the resource list."""
 
-    ctx = get_context()
     resource = await ctx.read_resource(
         f"foreman://documentation/{resource_info['type']}/{resource_info['list_name']}"
     )
@@ -36,10 +36,9 @@ def assert_http_method(foreman_api, action_info: dict, http_method: str) -> bool
         return True
 
 
-def mcp_info_headers(get_context) -> dict:
+def mcp_info_headers(ctx: Context) -> dict:
     """Returns MCP info headers for the request."""
 
-    ctx = get_context()
     if ctx.request_context.request:
         return {
             "X-Foreman-MCP-Server-Host": f"{ctx.request_context.request.client.host}:{ctx.request_context.request.client.port}",
@@ -51,10 +50,9 @@ def mcp_info_headers(get_context) -> dict:
         return {}
 
 
-def get_foreman_api(get_context) -> ForemanApi:
+def get_foreman_api(ctx: Context) -> ForemanApi:
     """Retrieves the Foreman API instance for the given username."""
 
-    ctx = get_context()
     foreman_username = ctx.request_context.request.headers.get("foreman_username")
     session_id = ctx.request_context.request.headers.get("mcp-session-id")
     user_map = getattr(ctx, "user_map", {})

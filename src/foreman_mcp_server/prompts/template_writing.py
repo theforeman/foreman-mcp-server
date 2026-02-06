@@ -1,7 +1,7 @@
 from pydantic import Field
 
 
-def register_template_writing_prompts(mcp, _foreman_api, _get_context):
+def register_template_writing_prompts(mcp, _foreman_api):
     @mcp.prompt(
         name="Basic Template Writing",
         description="A prompt for writing a basic template in Foreman",

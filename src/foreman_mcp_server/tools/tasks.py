@@ -1,6 +1,8 @@
 import asyncio
 import json
 
+from fastmcp.dependencies import CurrentContext
+from fastmcp.server.context import Context
 from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
 
@@ -15,7 +17,7 @@ DEFAULT_POLL_INTERVAL = 5  # seconds
 DEFAULT_POLL_TIMEOUT = 300  # 5 minutes
 
 
-def register_task_tools(mcp, foreman_api, get_context):
+def register_task_tools(mcp):
     @mcp.tool(
         description="Polls a Foreman task until it reaches a terminal state (stopped or paused). Returns the final task state. Supports background execution for long-running tasks.",
         tags=("foreman", "api", "get", "task", "polling"),
@@ -31,6 +33,7 @@ def register_task_tools(mcp, foreman_api, get_context):
         task_id: str,
         timeout: int = DEFAULT_POLL_TIMEOUT,
         poll_interval: int = DEFAULT_POLL_INTERVAL,
+        ctx: Context = CurrentContext(),
     ) -> ToolResult:
         """
         Poll a Foreman task until it reaches a terminal state.
@@ -40,9 +43,8 @@ def register_task_tools(mcp, foreman_api, get_context):
             timeout: Maximum time to wait in seconds (default: 300)
             poll_interval: Time between polls in seconds (default: 5)
         """
-        ctx = get_context()
         try:
-            api = foreman_api or get_foreman_api(get_context)
+            api = get_foreman_api(ctx)
             elapsed = 0
 
             # Always fetch task status at least once
@@ -50,7 +52,7 @@ def register_task_tools(mcp, foreman_api, get_context):
                 "foreman_tasks",
                 "show",
                 {"id": task_id},
-                mcp_info_headers(get_context),
+                mcp_info_headers(ctx),
             )
 
             # Report initial progress based on task's progress field
@@ -76,7 +78,7 @@ def register_task_tools(mcp, foreman_api, get_context):
                     "foreman_tasks",
                     "show",
                     {"id": task_id},
-                    mcp_info_headers(get_context),
+                    mcp_info_headers(ctx),
                 )
 
                 # Report progress based on task's progress field

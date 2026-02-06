@@ -1,3 +1,5 @@
+from fastmcp.dependencies import CurrentContext
+from fastmcp.server.context import Context
 from fastmcp.tools.tool import ToolResult
 
 from ..utils.content_utils import build_tool_result
@@ -5,7 +7,7 @@ from ..utils.dsl_docs_utils import read_dsl_docs_from_markdown
 from ..utils.utils import assert_resource, get_foreman_api
 
 
-def register_get_foreman_dsl_docs(mcp, foreman_api, get_context):
+def register_get_foreman_dsl_docs(mcp, foreman_api):
     @mcp.tool(
         description="Reads from cache and returns the documentation of available macros"
         " for template writing in Markdown format based on provided section.",
@@ -18,13 +20,16 @@ def register_get_foreman_dsl_docs(mcp, foreman_api, get_context):
             "openWorldHint": False,
         },
     )
-    async def get_foreman_dsl_docs(section: str) -> ToolResult:
+    async def get_foreman_dsl_docs(
+        section: str,
+        ctx: Context = CurrentContext(),
+    ) -> ToolResult:
         try:
-            api = foreman_api or get_foreman_api(get_context)
+            api = foreman_api or get_foreman_api(ctx)
             await assert_resource(
                 section,
                 {"name": "Section", "list_name": "sections", "type": "dsl"},
-                get_context,
+                ctx,
             )
             docs = await read_dsl_docs_from_markdown(
                 api.apidoc_cache_dir, f"{section}.en.md"
