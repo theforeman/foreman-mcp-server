@@ -45,9 +45,6 @@ def register_task_tools(mcp, foreman_api, get_context):
             api = foreman_api or get_foreman_api(get_context)
             elapsed = 0
 
-            # Report initial progress
-            await ctx.info(f"Polling task {task_id}...")
-
             # Always fetch task status at least once
             response = api.call(
                 "foreman_tasks",
@@ -70,7 +67,6 @@ def register_task_tools(mcp, foreman_api, get_context):
                     await ctx.report_progress(
                         100, 100, f"Task completed with state: {state}"
                     )
-                    await ctx.info(f"Task completed with state: {state}")
                     return format_poll_success(response, elapsed)
 
                 await asyncio.sleep(poll_interval)
@@ -91,7 +87,6 @@ def register_task_tools(mcp, foreman_api, get_context):
 
                 message = f"Polling task {task_id}... ({elapsed}s elapsed, {current_progress}% complete)"
                 await ctx.report_progress(current_progress, 100, message)
-                await ctx.info(message)
 
             # Check one final time after the loop exits
             state = response.get("state")
@@ -99,7 +94,6 @@ def register_task_tools(mcp, foreman_api, get_context):
                 await ctx.report_progress(
                     100, 100, f"Task completed with state: {state}"
                 )
-                await ctx.info(f"Task completed with state: {state}")
                 return format_poll_success(response, elapsed)
 
             # Timeout reached
