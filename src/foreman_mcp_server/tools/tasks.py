@@ -1,7 +1,6 @@
 import asyncio
 import json
 
-from fastmcp.dependencies import Progress
 from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
 
@@ -27,13 +26,11 @@ def register_task_tools(mcp, foreman_api, get_context):
             "idempotentHint": True,
             "openWorldHint": False,
         },
-        task=True,  # Enable background task support
     )
     async def poll_task(
         task_id: str,
         timeout: int = DEFAULT_POLL_TIMEOUT,
         poll_interval: int = DEFAULT_POLL_INTERVAL,
-        progress: Progress = Progress(),  # noqa: B008
     ) -> ToolResult:
         """
         Poll a Foreman task until it reaches a terminal state.
@@ -42,15 +39,14 @@ def register_task_tools(mcp, foreman_api, get_context):
             task_id: The UUID of the task to poll
             timeout: Maximum time to wait in seconds (default: 300)
             poll_interval: Time between polls in seconds (default: 5)
-            progress: Progress reporter for background task updates
         """
+        ctx = get_context()
         try:
             api = foreman_api or get_foreman_api(get_context)
             elapsed = 0
 
-            # Set up progress reporting (100 steps for percentage)
-            await progress.set_total(100)
-            await progress.set_message(f"Polling task {task_id}...")
+            # Report initial progress
+            await ctx.info(f"Polling task {task_id}...")
 
             # Always fetch task status at least once
             response = api.call(
@@ -63,16 +59,18 @@ def register_task_tools(mcp, foreman_api, get_context):
             # Report initial progress based on task's progress field
             task_progress = response.get("progress", 0) or 0
             current_progress = int(task_progress * 100)
-            await progress.increment(current_progress)
+            await ctx.report_progress(
+                current_progress, 100, f"Polling task {task_id}..."
+            )
 
             while elapsed < timeout:
                 state = response.get("state")
                 if state in TASK_TERMINAL_STATES:
                     # Report 100% completion
-                    await progress.set_message(f"Task completed with state: {state}")
-                    remaining = 100 - current_progress
-                    if remaining > 0:
-                        await progress.increment(remaining)
+                    await ctx.report_progress(
+                        100, 100, f"Task completed with state: {state}"
+                    )
+                    await ctx.info(f"Task completed with state: {state}")
                     return format_poll_success(response, elapsed)
 
                 await asyncio.sleep(poll_interval)
@@ -88,29 +86,30 @@ def register_task_tools(mcp, foreman_api, get_context):
                 # Report progress based on task's progress field
                 task_progress = response.get("progress", 0) or 0
                 new_progress = int(task_progress * 100)
-                increment = new_progress - current_progress
-                if increment > 0:
-                    await progress.increment(increment)
+                if new_progress > current_progress:
                     current_progress = new_progress
 
-                await progress.set_message(
-                    f"Polling task {task_id}... ({elapsed}s elapsed, {int(task_progress * 100)}% complete)"
-                )
+                message = f"Polling task {task_id}... ({elapsed}s elapsed, {current_progress}% complete)"
+                await ctx.report_progress(current_progress, 100, message)
+                await ctx.info(message)
 
             # Check one final time after the loop exits
             state = response.get("state")
             if state in TASK_TERMINAL_STATES:
-                await progress.set_message(f"Task completed with state: {state}")
-                remaining = 100 - current_progress
-                if remaining > 0:
-                    await progress.increment(remaining)
+                await ctx.report_progress(
+                    100, 100, f"Task completed with state: {state}"
+                )
+                await ctx.info(f"Task completed with state: {state}")
                 return format_poll_success(response, elapsed)
 
             # Timeout reached
-            await progress.set_message(f"Timeout reached after {timeout} seconds")
+            await ctx.report_progress(
+                current_progress, 100, f"Timeout reached after {timeout} seconds"
+            )
+            await ctx.info(f"Timeout reached after {timeout} seconds")
             return format_poll_timeout(task_id, timeout, response)
         except Exception as e:
-            await progress.set_message(f"Error: {e}")
+            await ctx.info(f"Error: {e}")
             return format_poll_failure(task_id, e)
 
 
