@@ -1,7 +1,6 @@
 import json
 from typing import Any
 
-from fastmcp.dependencies import CurrentContext
 from fastmcp.server.context import Context
 from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
@@ -32,7 +31,7 @@ def register_foreman_api_methods(mcp):
         resource: str,
         action: str,
         params: dict,
-        ctx: Context = CurrentContext(),
+        ctx: Context,
     ) -> ToolResult:
         try:
             api = get_foreman_api(ctx)

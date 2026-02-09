@@ -1,4 +1,3 @@
-from fastmcp.dependencies import CurrentContext
 from fastmcp.server.context import Context
 from fastmcp.tools.tool import ToolResult
 
@@ -23,7 +22,7 @@ def register_fetch_foreman_dsl_docs(mcp):
     )
     async def fetch_foreman_dsl_docs(
         section: str,
-        ctx: Context = CurrentContext(),
+        ctx: Context,
     ) -> ToolResult:
         try:
             # TODO: Fix apipie-dsl since it returns all.en.json for non-existing sections

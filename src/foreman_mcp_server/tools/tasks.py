@@ -1,8 +1,7 @@
 import asyncio
 import json
 
-from fastmcp.dependencies import CurrentContext
-from fastmcp.server.context import Context
+from fastmcp import Context
 from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
 
@@ -31,9 +30,9 @@ def register_task_tools(mcp):
     )
     async def poll_task(
         task_id: str,
+        ctx: Context,
         timeout: int = DEFAULT_POLL_TIMEOUT,
         poll_interval: int = DEFAULT_POLL_INTERVAL,
-        ctx: Context = CurrentContext(),
     ) -> ToolResult:
         """
         Poll a Foreman task until it reaches a terminal state.

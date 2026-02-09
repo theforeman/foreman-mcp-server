@@ -1,4 +1,3 @@
-from fastmcp.dependencies import CurrentContext
 from fastmcp.server.context import Context
 from fastmcp.tools.tool import ToolResult
 
@@ -22,7 +21,7 @@ def register_get_foreman_api_resource_docs(mcp):
     )
     async def get_foreman_api_resource_docs(
         resource: str,
-        ctx: Context = CurrentContext(),
+        ctx: Context,
     ) -> ToolResult:
         try:
             api = get_foreman_api(ctx)

@@ -1,7 +1,6 @@
 # TODO: Consider re-writing the cache into Markdown format.
 
 
-from fastmcp.dependencies import CurrentContext
 from fastmcp.server.context import Context
 
 from foreman_mcp_server.utils.utils import get_foreman_api
@@ -16,7 +15,7 @@ def register_foreman_api_resource_docs(mcp):
     )
     def foreman_api_resource_docs(
         resource: str,
-        ctx: Context = CurrentContext(),
+        ctx: Context,
     ) -> str:
         try:
             api = get_foreman_api(ctx)
