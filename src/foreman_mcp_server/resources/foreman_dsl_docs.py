@@ -1,4 +1,3 @@
-from fastmcp.dependencies import CurrentContext
 from fastmcp.server.context import Context
 
 from foreman_mcp_server.utils.utils import get_foreman_api
@@ -15,7 +14,7 @@ def register_foreman_dsl_docs(mcp):
     )
     async def foreman_dsl_docs(
         section: str,
-        ctx: Context = CurrentContext(),
+        ctx: Context,
     ) -> str:
         try:
             api = get_foreman_api(ctx)

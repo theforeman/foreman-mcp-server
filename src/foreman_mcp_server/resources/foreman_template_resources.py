@@ -1,7 +1,6 @@
 # TODO: Consider refactoring
 
 
-from fastmcp.dependencies import CurrentContext
 from fastmcp.server.context import Context
 
 from foreman_mcp_server.utils.utils import get_foreman_api
@@ -14,7 +13,7 @@ def register_foreman_template_resources(mcp):
         uri="foreman://template/kinds",
         mime_type="text/plain",
     )
-    async def foreman_template_kinds(ctx: Context = CurrentContext()) -> str:
+    async def foreman_template_kinds(ctx: Context) -> str:
         try:
             # TODO: Consider saving it in cache. Revisit Resource notification mechanism.
             api = get_foreman_api(ctx)
@@ -30,7 +29,7 @@ def register_foreman_template_resources(mcp):
         uri="foreman://template/models",
         mime_type="text/plain",
     )
-    async def foreman_template_models(ctx: Context = CurrentContext()) -> str:
+    async def foreman_template_models(ctx: Context) -> str:
         try:
             all_resources = await ctx.read_resource(
                 "foreman://documentation/api/resources"
