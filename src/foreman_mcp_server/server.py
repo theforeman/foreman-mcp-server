@@ -5,6 +5,7 @@ from pathlib import Path
 import apypie
 import click
 from fastmcp import FastMCP
+from fastmcp.server.middleware.error_handling import ErrorHandlingMiddleware
 from fastmcp.settings import LOG_LEVEL
 from fastmcp.utilities.logging import configure_logging
 
@@ -138,7 +139,6 @@ def main(
     register_resources(mcp)
     register_prompts(mcp)
 
-    # TODO: We should've probably used https://gofastmcp.com/servers/middleware#error-handling-middleware for error handling
     foreman_api = None
     if transport == "stdio":
         foreman_api = apypie.ForemanApi(
@@ -147,6 +147,7 @@ def main(
             password=foreman_password,
             verify_ssl=verify_ssl,
         )
+    mcp.add_middleware(ErrorHandlingMiddleware())
     mcp.add_middleware(AuthMiddleware(foreman_url, verify_ssl, foreman_api))
     mcp.add_middleware(LoggingMiddleware())
 
