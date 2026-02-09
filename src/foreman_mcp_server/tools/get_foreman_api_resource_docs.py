@@ -6,7 +6,7 @@ from ..utils.content_utils import build_tool_result
 from ..utils.utils import assert_resource, get_foreman_api
 
 
-def register_get_foreman_api_resource_docs(mcp, foreman_api):
+def register_get_foreman_api_resource_docs(mcp):
     """Register a tool to get Foreman API resource documentation."""
 
     @mcp.tool(
@@ -25,7 +25,7 @@ def register_get_foreman_api_resource_docs(mcp, foreman_api):
         ctx: Context = CurrentContext(),
     ) -> ToolResult:
         try:
-            api = foreman_api or get_foreman_api(ctx)
+            api = get_foreman_api(ctx)
             await assert_resource(
                 resource,
                 {"name": "Resource", "list_name": "resources", "type": "api"},

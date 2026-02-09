@@ -7,7 +7,7 @@ from ..utils.dsl_docs_utils import save_dsl_docs_as_markdown
 from ..utils.utils import assert_resource, get_foreman_api, mcp_info_headers
 
 
-def register_fetch_foreman_dsl_docs(mcp, foreman_api):
+def register_fetch_foreman_dsl_docs(mcp):
     """Register the tool to fetch DSL documentation from Foreman."""
 
     @mcp.tool(
@@ -27,7 +27,7 @@ def register_fetch_foreman_dsl_docs(mcp, foreman_api):
     ) -> ToolResult:
         try:
             # TODO: Fix apipie-dsl since it returns all.en.json for non-existing sections
-            api = foreman_api or get_foreman_api(ctx)
+            api = get_foreman_api(ctx)
             await assert_resource(
                 section,
                 {"name": "Section", "list_name": "sections", "type": "dsl"},

@@ -51,12 +51,29 @@ def mcp_info_headers(ctx: Context) -> dict:
 
 
 def get_foreman_api(ctx: Context) -> ForemanApi:
-    """Retrieves the Foreman API instance for the given username."""
+    """Retrieves the Foreman API instance from the context.
 
-    foreman_username = ctx.request_context.request.headers.get("foreman_username")
-    session_id = ctx.request_context.request.headers.get("mcp-session-id")
+    This function provides unified access to the ForemanApi instance across
+    both stdio and streamable-http transports:
+
+    - For stdio transport: StdioAuthMiddleware injects `foreman_api` directly
+      into the context at startup.
+    - For streamable-http transport: AuthMiddleware creates and caches API
+      instances per user/session in `user_map`, accessed via HTTP headers.
+    """
+    # Check for direct foreman_api attribute (stdio transport via StdioAuthMiddleware)
+    foreman_api = getattr(ctx, "foreman_api", None)
+    if foreman_api is not None:
+        return foreman_api
+
+    # Fall back to user_map lookup (streamable-http transport via AuthMiddleware)
     user_map = getattr(ctx, "user_map", {})
+    if user_map and ctx.request_context and ctx.request_context.request:
+        foreman_username = ctx.request_context.request.headers.get("foreman_username")
+        session_id = ctx.request_context.request.headers.get("mcp-session-id")
+        if foreman_username in user_map and session_id in user_map[foreman_username]:
+            return user_map[foreman_username][session_id]
 
-    if foreman_username in user_map and session_id in user_map[foreman_username]:
-        return user_map[foreman_username][session_id]
-    raise RuntimeError(f"Foreman API is not available for {foreman_username}.")
+    raise RuntimeError(
+        "Foreman API is not available. Ensure the appropriate middleware is configured."
+    )

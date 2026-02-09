@@ -7,7 +7,7 @@ from fastmcp.server.context import Context
 from foreman_mcp_server.utils.utils import get_foreman_api
 
 
-def register_foreman_template_resources(mcp, foreman_api):
+def register_foreman_template_resources(mcp):
     @mcp.resource(
         name="Foreman Template Kinds",
         description="Provides a list of all template kinds available in Foreman.",
@@ -17,7 +17,7 @@ def register_foreman_template_resources(mcp, foreman_api):
     async def foreman_template_kinds(ctx: Context = CurrentContext()) -> str:
         try:
             # TODO: Consider saving it in cache. Revisit Resource notification mechanism.
-            api = foreman_api or get_foreman_api(ctx)
+            api = get_foreman_api(ctx)
             response = api.call("template_kinds", "index", {})
             kinds = [res.get("name") for res in response.get("results", [])]
             return ", ".join(kinds)

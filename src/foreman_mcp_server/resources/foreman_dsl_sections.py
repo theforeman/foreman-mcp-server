@@ -1,5 +1,5 @@
 # TODO: Change hardcoded section list
-def register_foreman_dsl_sections(mcp, _foreman_api):
+def register_foreman_dsl_sections(mcp):
     """Register all Foreman DSL sections with the MCP server."""
 
     @mcp.resource(
