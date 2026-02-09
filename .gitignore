@@ -11,5 +11,5 @@ wheels/
 
 .vscode
 
-katello-server-ca.crt
+ca.pem
 .mcp.json
