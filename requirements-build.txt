@@ -94,15 +94,6 @@ cffi==2.0.0 \
     --hash=sha256:fc7de24befaeae77ba923797c7c87834c73648a05a4bde34b3b7e5588973a453 \
     --hash=sha256:fe562eb1a64e67dd297ccc4f5addea2501664954f2692b69a76449ec7913ecbf
     # via cryptography
-coherent-licensed==0.5.2 \
-    --hash=sha256:d8071403ce742d3ac3592ddc4fb7057a46caffb415b928b4d52802e5f208416d \
-    --hash=sha256:edccc5193ca2786f8fb3f0c7374637a143985f781f7eaa21aca3af2bd634b82f
-    # via
-    #   importlib-metadata
-    #   jaraco-context
-    #   jaraco-functools
-    #   keyring
-    #   zipp
 cython==3.2.4 \
     --hash=sha256:02cb0cc0f23b9874ad262d7d2b9560aed9c7e2df07b49b920bda6f2cc9cb505e \
     --hash=sha256:03893c88299a2c868bb741ba6513357acd104e7c42265809fd58dce1456a36fc \
@@ -143,9 +134,7 @@ cython==3.2.4 \
     --hash=sha256:f8d685a70bce39acc1d62ec3916d9b724b5ef665b0ce25ae55e1c85ee09747fc \
     --hash=sha256:fdfdd753ad7e18e5092b413e9f542e8d28b8a08203126090e1c15f7783b7fe57 \
     --hash=sha256:ff9af2134c05e3734064808db95b4dd7341a39af06e8945d05ea358e1741aaed
-    # via
-    #   lupa
-    #   pyyaml
+    # via pyyaml
 dunamai==1.25.0 \
     --hash=sha256:7f9dc687dd3256e613b6cc978d9daabfd2bb5deb8adc541fc135ee423ffa98ab \
     --hash=sha256:a7f8360ea286d3dbaf0b6a1473f9253280ac93d619836ad4514facb70c0719d1
@@ -155,16 +144,12 @@ flit-core==3.12.0 \
     --hash=sha256:e7a0304069ea895172e3c7bb703292e992c5d1555dd1233ab7b5621b5b69e62c
     # via
     #   click
-    #   cloudpickle
-    #   coherent-licensed
     #   docutils
     #   flit-scm
     #   idna
-    #   jeepney
     #   jinja2
     #   markdown-it-py
     #   mdurl
-    #   more-itertools
     #   packaging
     #   pathspec
     #   typing-extensions
@@ -192,7 +177,6 @@ hatch-vcs==0.5.0 \
     #   jsonschema
     #   jsonschema-specifications
     #   platformdirs
-    #   pydocket
     #   referencing
     #   urllib3
 hatchling==1.28.0 \
@@ -206,7 +190,6 @@ hatchling==1.28.0 \
     #   cyclopts
     #   dnspython
     #   docstring-parser
-    #   fakeredis
     #   fastmcp
     #   hatch-fancy-pypi-readme
     #   hatch-vcs
@@ -215,18 +198,11 @@ hatchling==1.28.0 \
     #   jsonschema
     #   jsonschema-specifications
     #   mcp
-    #   opentelemetry-api
-    #   opentelemetry-exporter-prometheus
-    #   opentelemetry-instrumentation
-    #   opentelemetry-sdk
-    #   opentelemetry-semantic-conventions
     #   platformdirs
     #   pydantic
     #   pydantic-settings
-    #   pydocket
     #   pygments
     #   python-multipart
-    #   redis
     #   referencing
     #   starlette
     #   typing-inspection
@@ -359,14 +335,6 @@ pathspec==1.0.4 \
     --hash=sha256:0210e2ae8a21a9137c0d470578cb0e595af87edaa6ebf12ff176f14a02e0e645 \
     --hash=sha256:fb6ae2fd4e7c921a165808a552060e722767cfa526f99ca5156ed2ce45a5c723
     # via hatchling
-pdm-backend==2.4.7 \
-    --hash=sha256:1599e3afa6f229b30cb4d3bd9caeca42229c42eb5730abd13e0b5256ec93c9f7 \
-    --hash=sha256:a509d083850378ce919d41e7a2faddfc57a1764d376913c66731125d6b14110f
-    # via typer
-pdm-pep517==1.1.4 \
-    --hash=sha256:7f49121e70b42dca296fac962210dd2da07a39575fc5673137ad661633b2cf3f \
-    --hash=sha256:c9fe65d06cf193f864ac2b38372a355450ff7f847aefc9b59e89fe2cf19f32b9
-    # via jsonref
 pluggy==1.6.0 \
     --hash=sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3 \
     --hash=sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746
@@ -401,16 +369,10 @@ setuptools-scm==9.2.2 \
     #   flit-scm
     #   hatch-vcs
     #   httpx-sse
-    #   importlib-metadata
-    #   jaraco-classes
-    #   jaraco-context
-    #   jaraco-functools
-    #   keyring
     #   pathvalidate
     #   pluggy
     #   setuptools-rust
     #   urllib3
-    #   zipp
 tomlkit==0.14.0 \
     --hash=sha256:592064ed85b40fa213469f81ac584f67a4f2992509a7c3ea2d632208623a3680 \
     --hash=sha256:cf00efca415dbd57575befb1f6634c4f42d2d87dbba376128adb42c121b87064
@@ -455,14 +417,16 @@ wheel==0.46.3 \
     #   authlib
     #   cachetools
     #   httpx-sse
-    #   lupa
     #   pycparser
-    #   shellingham
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==80.10.2 \
-    --hash=sha256:8b0e9d10c784bf7d262c4e5ec5d4ec94127ce206e8738f29a437945fbc219b70 \
-    --hash=sha256:95b30ddfb717250edb492926c92b5221f7ef3fbcc2b07579bcd4a27da21d0173
+setuptools==81.0.0 \
+    --hash=sha256:487b53915f52501f0a79ccfd0c02c165ffe06631443a886740b91af4b7a5845a \
+    --hash=sha256:fdd925d5c5d9f62e4b74b30d6dd7828ce236fd6ed998a08d81de62ce5a6310d6
+    # via charset-normalizer
+setuptools==82.0.0 \
+    --hash=sha256:22e0a2d69474c6ae4feb01951cb69d515ed23728cf96d05513d36e42b62b37cb \
+    --hash=sha256:70b18734b607bd1da571d097d236cfcfacaf01de45717d59e6e04b96877532e0
     # via
     #   anyio
     #   authlib
@@ -470,34 +434,21 @@ setuptools==80.10.2 \
     #   calver
     #   certifi
     #   cffi
-    #   charset-normalizer
     #   cryptography
     #   httpx-sse
-    #   importlib-metadata
-    #   jaraco-classes
-    #   jaraco-context
-    #   jaraco-functools
-    #   keyring
-    #   lupa
     #   markupsafe
     #   maturin
     #   pathspec
     #   pathvalidate
     #   pluggy
-    #   prometheus-client
     #   pycparser
     #   pyjwt
     #   pyperclip
     #   python-dotenv
-    #   python-json-logger
     #   pyyaml
     #   rich-rst
-    #   secretstorage
     #   setuptools-rust
     #   setuptools-scm
-    #   shellingham
     #   sse-starlette
     #   trove-classifiers
     #   websockets
-    #   wrapt
-    #   zipp
