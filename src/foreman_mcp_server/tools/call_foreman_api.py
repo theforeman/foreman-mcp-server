@@ -16,7 +16,7 @@ from ..utils.utils import (
 
 
 # TODO: Probably split it into multiple tools (read-only, destructive, etc)
-def register_foreman_api_methods(mcp, foreman_api):
+def register_foreman_api_methods(mcp):
     @mcp.tool(
         description="Calls GET action on Foreman API.",
         tags=("foreman", "api", "get", "resource", "remote"),
@@ -35,7 +35,7 @@ def register_foreman_api_methods(mcp, foreman_api):
         ctx: Context = CurrentContext(),
     ) -> ToolResult:
         try:
-            api = foreman_api or get_foreman_api(ctx)
+            api = get_foreman_api(ctx)
             await assert_resource(
                 resource,
                 {"name": "Resource", "list_name": "resources", "type": "api"},

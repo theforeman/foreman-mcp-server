@@ -10,6 +10,7 @@ from fastmcp.utilities.logging import configure_logging
 
 from .middleware.auth import AuthMiddleware
 from .middleware.logging import LoggingMiddleware
+from .middleware.stdio_auth import StdioAuthMiddleware
 from .prompts import register_prompts
 from .resources import register_resources
 from .tools import register_tools
@@ -134,7 +135,11 @@ def main(
     if ca_bundle:
         verify_ssl = ca_bundle
 
-    foreman_api = None
+    register_tools(mcp)
+    register_resources(mcp)
+    register_prompts(mcp)
+
+    # TODO: We should've probably used https://gofastmcp.com/servers/middleware#error-handling-middleware for error handling
     if transport == "stdio":
         foreman_api = apypie.ForemanApi(
             uri=foreman_url,
@@ -142,12 +147,8 @@ def main(
             password=foreman_password,
             verify_ssl=verify_ssl,
         )
-    register_tools(mcp, foreman_api)
-    register_resources(mcp, foreman_api)
-    register_prompts(mcp, foreman_api)
-
-    # TODO: We should've probably used https://gofastmcp.com/servers/middleware#error-handling-middleware for error handling
-    if transport == "streamable-http":
+        mcp.add_middleware(StdioAuthMiddleware(foreman_api))
+    else:
         mcp.add_middleware(AuthMiddleware(foreman_url, verify_ssl))
     mcp.add_middleware(LoggingMiddleware())
 

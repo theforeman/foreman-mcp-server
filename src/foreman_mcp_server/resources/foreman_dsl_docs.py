@@ -6,7 +6,7 @@ from foreman_mcp_server.utils.utils import get_foreman_api
 from ..utils.dsl_docs_utils import read_dsl_docs_from_markdown
 
 
-def register_foreman_dsl_docs(mcp, foreman_api):
+def register_foreman_dsl_docs(mcp):
     @mcp.resource(
         name="Foreman DSL Documentation",
         description="Reads from cache and returns the documentation of available macros for template writing in Markdown format based on provided section.",
@@ -18,7 +18,7 @@ def register_foreman_dsl_docs(mcp, foreman_api):
         ctx: Context = CurrentContext(),
     ) -> str:
         try:
-            api = foreman_api or get_foreman_api(ctx)
+            api = get_foreman_api(ctx)
             docs = await read_dsl_docs_from_markdown(
                 api.apidoc_cache_dir, f"{section}.en.md"
             )

@@ -7,7 +7,7 @@ from fastmcp.server.context import Context
 from foreman_mcp_server.utils.utils import get_foreman_api
 
 
-def register_foreman_api_resource_docs(mcp, foreman_api):
+def register_foreman_api_resource_docs(mcp):
     @mcp.resource(
         name="Foreman API Resource Documentation",
         description="Returns the documentation of a specific Foreman API resource.",
@@ -19,7 +19,7 @@ def register_foreman_api_resource_docs(mcp, foreman_api):
         ctx: Context = CurrentContext(),
     ) -> str:
         try:
-            api = foreman_api or get_foreman_api(ctx)
+            api = get_foreman_api(ctx)
             docs = api.apidoc["docs"]["resources"][resource]
             return f"{docs}"
         except Exception as e:

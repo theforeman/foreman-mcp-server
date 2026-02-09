@@ -7,7 +7,7 @@ from ..utils.dsl_docs_utils import read_dsl_docs_from_markdown
 from ..utils.utils import assert_resource, get_foreman_api
 
 
-def register_get_foreman_dsl_docs(mcp, foreman_api):
+def register_get_foreman_dsl_docs(mcp):
     @mcp.tool(
         description="Reads from cache and returns the documentation of available macros"
         " for template writing in Markdown format based on provided section.",
@@ -25,7 +25,7 @@ def register_get_foreman_dsl_docs(mcp, foreman_api):
         ctx: Context = CurrentContext(),
     ) -> ToolResult:
         try:
-            api = foreman_api or get_foreman_api(ctx)
+            api = get_foreman_api(ctx)
             await assert_resource(
                 section,
                 {"name": "Section", "list_name": "sections", "type": "dsl"},
