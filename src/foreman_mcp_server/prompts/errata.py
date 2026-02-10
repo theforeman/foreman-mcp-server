@@ -29,11 +29,10 @@ Follow these steps:
 
    **IMPORTANT**: Do NOT proceed to trigger the job until I explicitly confirm which hosts to target.
 
-3. **Find the appropriate remote execution feature**: Once I confirm the target hosts, use call_foreman_api_get to list remote execution features:
-   - Resource: "remote_execution_features"
-   - Action: "index"
+3. **Find the appropriate remote execution feature**: Once I confirm the target hosts, read the allowed remote execution features resource:
+   - URI: "foreman://remote_execution/allowed_features"
 
-   Look for a feature related to errata installation (e.g., "katello_errata_install").
+   Look for a feature related to errata installation (e.g., "katello_errata_install"). This resource provides the allowed features along with their job template information.
 
 4. **Get template inputs**: Use call_foreman_api_get to read the feature's associated job template to see what inputs it accepts:
    - Resource: "job_templates"

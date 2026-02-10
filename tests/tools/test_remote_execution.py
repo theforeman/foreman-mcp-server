@@ -171,21 +171,12 @@ class TestRexFeatureAllowlist:
         assert "katello_errata_install" in str(exc_info.value)
         mock_foreman_api.call.assert_not_called()
 
-    def test_empty_allowlist_blocks_all_features(
+    def test_empty_allowlist_prevents_tool_from_being_registered(
         self, mcp, mock_foreman_api, mock_get_context
     ):
-        """Test that an empty allowlist blocks all features."""
+        """Test that an empty allowlist prevents the tool from being registered at all."""
         register_remote_execution_tools(mcp, mock_foreman_api, mock_get_context, [])
 
-        tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
+        with pytest.raises(KeyError) as exc_info:
+            mcp._tool_manager._tools["trigger_remote_execution_job"]
 
-        with pytest.raises(ToolError) as exc_info:
-            asyncio.run(
-                tool.fn(
-                    feature="katello_errata_install",
-                    search_query="name ~ test",
-                )
-            )
-
-        assert "not allowed" in str(exc_info.value)
-        mock_foreman_api.call.assert_not_called()

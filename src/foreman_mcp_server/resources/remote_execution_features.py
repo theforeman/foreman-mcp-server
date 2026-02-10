@@ -19,6 +19,7 @@ def register_remote_execution_features(
         ),
         uri="foreman://remote_execution/allowed_features",
         mime_type="application/json",
+        enabled=any(allowed_rex_features),
     )
     async def allowed_remote_execution_features_resource() -> str:
         if not any(allowed_rex_features):

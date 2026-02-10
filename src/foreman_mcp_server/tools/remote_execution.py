@@ -17,6 +17,7 @@ def register_remote_execution_tools(
     get_context: Callable,
     allowed_rex_features: Sequence[str] = (),
 ) -> None:
+
     @mcp.tool(
         description="""Triggers a remote execution job on Foreman using a remote execution feature.
 
@@ -35,6 +36,7 @@ Returns the job invocation ID and task ID for polling.""",
             "idempotentHint": False,
             "openWorldHint": False,
         },
+        enabled=any(allowed_rex_features)
     )
     async def trigger_remote_execution_job(
         feature: str,

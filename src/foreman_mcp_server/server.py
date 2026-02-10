@@ -105,7 +105,7 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
 )
 @click.option(
     "--allowed-rex-features",
-    default="katello_errata_install,katello_errata_install_by_search",
+    default="",
     help="Comma-separated list of allowed remote execution feature labels.",
     envvar="FOREMAN_ALLOWED_REX_FEATURES",
     show_default=True,
