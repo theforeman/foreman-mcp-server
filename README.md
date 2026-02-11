@@ -188,3 +188,58 @@ claude-desktop
 
  - Click `+` button > Add from foreman: > Select any of Prompts and Resources from the server
  - Click Configuration button to select Tools from the server
+
+# Remote Execution Features
+
+The MCP server can trigger remote execution jobs on Foreman hosts. This functionality is **opt-in** and disabled by default for security reasons.
+
+## Enabling Remote Execution
+
+To enable remote execution, you must explicitly specify which remote execution features are allowed using the `--allowed-rex-features` option or the `FOREMAN_ALLOWED_REX_FEATURES` environment variable:
+
+```shell
+uv run foreman-mcp-server \
+  --foreman-url https://foreman.example.com \
+  --foreman-username $FOREMAN_USERNAME \
+  --foreman-password $FOREMAN_PASSWORD \
+  --allowed-rex-features "katello_errata_install,katello_package_install"
+```
+
+Or using the environment variable:
+
+```shell
+export FOREMAN_ALLOWED_REX_FEATURES="katello_errata_install,katello_package_install"
+uv run foreman-mcp-server ...
+```
+
+## How It Works
+
+1. **Allowlist-based security**: Only remote execution features explicitly listed in `--allowed-rex-features` can be triggered. Any attempt to use a feature not on the list will be rejected.
+
+2. **Available features resource**: When allowed features are configured, a resource becomes available at `foreman://remote_execution/allowed_features`. This resource returns information about each allowed feature, including:
+   - Feature label, ID, name, and description
+   - Associated job template ID and name
+   - Any errors (e.g., if the feature doesn't exist in Foreman)
+
+3. **Trigger tool**: The `trigger_remote_execution_job` tool is only enabled when at least one feature is allowed. To use it, the AI agent should:
+   1. Read the "Allowed Remote Execution Features" resource to see available features
+   2. Pick the appropriate feature for the task
+   3. Use `call_foreman_api_get` to read the feature's job template (`resource: "job_templates"`, `action: "show"`) to see what inputs it accepts
+   4. Call `trigger_remote_execution_job` with the feature label, search query, and appropriate inputs
+
+## Common Remote Execution Features
+
+Here are some commonly used remote execution feature labels:
+
+| Feature Label | Description |
+|---------------|-------------|
+| `katello_errata_install` | Install errata on hosts |
+| `katello_package_install` | Install packages on hosts |
+| `katello_package_update` | Update packages on hosts |
+| `katello_package_remove` | Remove packages from hosts |
+| `katello_host_tracer_resolve` | Resolve Tracer-detected services |
+
+To find all available features in your Foreman instance, you can use the API:
+```shell
+curl -u $USER:$PASSWORD https://foreman.example.com/api/remote_execution_features
+```
