@@ -14,8 +14,6 @@ def register_tools(mcp, allowed_rex_features=None):
 
     Args:
         mcp: The FastMCP server instance
-        foreman_api: The Foreman API client (or None for HTTP transport)
-        get_context: Function to get the request context
         allowed_rex_features: Optional list of allowed remote execution feature labels
     """
 
