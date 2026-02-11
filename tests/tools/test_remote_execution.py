@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from fastmcp import FastMCP
@@ -110,9 +110,14 @@ class TestRexFeatureAllowlist:
         return FastMCP(name="Test MCP Server")
 
     @pytest.fixture
-    def mock_foreman_api(self):
-        api = Mock()
-        api.call.return_value = {
+    def mock_ctx(self):
+        return Mock()
+
+    @patch("foreman_mcp_server.tools.remote_execution.get_foreman_api")
+    def test_allowed_feature_passes(self, mock_get_foreman_api, mcp, mock_ctx):
+        """Test that an allowed feature passes validation."""
+        mock_api = Mock()
+        mock_api.call.return_value = {
             "id": 123,
             "description": "Test job",
             "status": 0,
@@ -121,18 +126,10 @@ class TestRexFeatureAllowlist:
             "targeting": {"search_query": "name ~ test"},
             "total_hosts_count": 1,
         }
-        return api
+        mock_get_foreman_api.return_value = mock_api
 
-    @pytest.fixture
-    def mock_get_context(self):
-        return Mock()
-
-    def test_allowed_feature_passes(self, mcp, mock_foreman_api, mock_get_context):
-        """Test that an allowed feature passes validation."""
         allowed_features = ["katello_errata_install", "katello_package_install"]
-        register_remote_execution_tools(
-            mcp, mock_foreman_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_tools(mcp, allowed_features)
 
         # Get the registered tool function
         tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
@@ -141,20 +138,17 @@ class TestRexFeatureAllowlist:
             tool.fn(
                 feature="katello_errata_install",
                 search_query="name ~ test",
+                ctx=mock_ctx,
             )
         )
 
         assert result.structured_content["job_invocation_id"] == 123
-        mock_foreman_api.call.assert_called_once()
+        mock_api.call.assert_called_once()
 
-    def test_disallowed_feature_raises_error(
-        self, mcp, mock_foreman_api, mock_get_context
-    ):
+    def test_disallowed_feature_raises_error(self, mcp, mock_ctx):
         """Test that a disallowed feature raises ToolError."""
         allowed_features = ["katello_errata_install"]
-        register_remote_execution_tools(
-            mcp, mock_foreman_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_tools(mcp, allowed_features)
 
         tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
 
@@ -163,20 +157,18 @@ class TestRexFeatureAllowlist:
                 tool.fn(
                     feature="run_arbitrary_script",
                     search_query="name ~ test",
+                    ctx=mock_ctx,
                 )
             )
 
         assert "not allowed" in str(exc_info.value)
         assert "run_arbitrary_script" in str(exc_info.value)
         assert "katello_errata_install" in str(exc_info.value)
-        mock_foreman_api.call.assert_not_called()
 
-    def test_empty_allowlist_prevents_tool_from_being_registered(
-        self, mcp, mock_foreman_api, mock_get_context
-    ):
-        """Test that an empty allowlist prevents the tool from being registered at all."""
-        register_remote_execution_tools(mcp, mock_foreman_api, mock_get_context, [])
+    def test_empty_allowlist_disables_tool(self, mcp):
+        """Test that an empty allowlist registers the tool as disabled."""
+        register_remote_execution_tools(mcp, [])
 
-        with pytest.raises(KeyError) as exc_info:
-            mcp._tool_manager._tools["trigger_remote_execution_job"]
+        tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
+        assert tool.enabled is False
 

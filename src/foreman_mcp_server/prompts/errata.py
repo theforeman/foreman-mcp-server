@@ -1,13 +1,15 @@
 from pydantic import Field
 
 
-def register_errata_prompts(mcp, _foreman_api, _get_context):
+def register_errata_prompts(mcp):
     @mcp.prompt(
         name="Apply Errata to Hosts",
         description="A prompt for applying a specific errata to applicable hosts in Foreman using remote execution.",
     )
     async def apply_errata_prompt(
-        errata_id: str = Field(description="The errata identifier (e.g., RHSA-2025:1234)"),
+        errata_id: str = Field(
+            description="The errata identifier (e.g., RHSA-2025:1234)"
+        ),
     ) -> str:
         prompt = f"""Help me apply the errata '{errata_id}' to hosts on my Foreman instance.
 

@@ -1,8 +1,7 @@
 import json
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 
-import apypie
-from fastmcp import FastMCP
+from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from fastmcp.tools.tool import ToolResult
 from requests.exceptions import HTTPError
@@ -13,8 +12,6 @@ from ..utils.utils import get_foreman_api, mcp_info_headers
 
 def register_remote_execution_tools(
     mcp: FastMCP,
-    foreman_api: apypie.ForemanApi | None,
-    get_context: Callable,
     allowed_rex_features: Sequence[str] = (),
 ) -> None:
 
@@ -36,11 +33,12 @@ Returns the job invocation ID and task ID for polling.""",
             "idempotentHint": False,
             "openWorldHint": False,
         },
-        enabled=any(allowed_rex_features)
+        enabled=any(allowed_rex_features),
     )
     async def trigger_remote_execution_job(
         feature: str,
         search_query: str,
+        ctx: Context,
         inputs: dict | None = None,
         description: str | None = None,
     ) -> ToolResult:
@@ -61,7 +59,7 @@ Returns the job invocation ID and task ID for polling.""",
             )
 
         try:
-            api = foreman_api or get_foreman_api(get_context)
+            api = get_foreman_api(ctx)
 
             # Build the job invocation payload
             job_invocation_params = {
@@ -82,7 +80,7 @@ Returns the job invocation ID and task ID for polling.""",
                 "job_invocations",
                 "create",
                 job_invocation_params,
-                mcp_info_headers(get_context),
+                mcp_info_headers(ctx),
             )
 
             return format_job_invocation_success(response)

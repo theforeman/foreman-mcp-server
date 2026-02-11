@@ -1,6 +1,6 @@
 import asyncio
 import json
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 
 import pytest
 from fastmcp import FastMCP
@@ -19,27 +19,28 @@ class TestAllowedRemoteExecutionFeaturesResource:
         return FastMCP(name="Test MCP Server")
 
     @pytest.fixture
-    def mock_get_context(self):
+    def mock_ctx(self):
         return Mock()
 
-    def _get_resource_result(self, mcp):
+    def _get_resource_result(self, mcp, ctx):
         """Helper to get the resource function and run it."""
         resource = mcp._resource_manager._resources[
             "foreman://remote_execution/allowed_features"
         ]
-        return asyncio.run(resource.fn())
+        return asyncio.run(resource.fn(ctx))
 
-    def test_empty_allowlist_returns_empty_features(self, mcp, mock_get_context):
+    def test_empty_allowlist_returns_empty_features(self, mcp, mock_ctx):
         """Test that an empty allowlist returns no features."""
-        register_remote_execution_features(mcp, None, mock_get_context, [])
+        register_remote_execution_features(mcp, [])
 
-        result = json.loads(self._get_resource_result(mcp))
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert result["features"] == []
         assert result["allowed_labels"] == []
 
+    @patch("foreman_mcp_server.resources.remote_execution_features.get_foreman_api")
     def test_happy_path_returns_features_with_template_info(
-        self, mcp, mock_get_context
+        self, mock_get_foreman_api, mcp, mock_ctx
     ):
         """Test that allowed features are returned with their template info."""
         mock_api = Mock()
@@ -73,13 +74,12 @@ class TestAllowedRemoteExecutionFeaturesResource:
                 ]
             },
         ]
+        mock_get_foreman_api.return_value = mock_api
 
         allowed_features = ["katello_errata_install"]
-        register_remote_execution_features(
-            mcp, mock_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_features(mcp, allowed_features)
 
-        result = json.loads(self._get_resource_result(mcp))
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert result["allowed_labels"] == ["katello_errata_install"]
         assert len(result["features"]) == 1
@@ -92,7 +92,10 @@ class TestAllowedRemoteExecutionFeaturesResource:
         assert feature["job_template_name"] == "Install Errata - Katello Script Default"
         assert feature["error"] is None
 
-    def test_nonexistent_feature_label_reports_error(self, mcp, mock_get_context):
+    @patch("foreman_mcp_server.resources.remote_execution_features.get_foreman_api")
+    def test_nonexistent_feature_label_reports_error(
+        self, mock_get_foreman_api, mcp, mock_ctx
+    ):
         """Test that a feature label not found in Foreman is reported with error."""
         mock_api = Mock()
         mock_api.call.side_effect = [
@@ -101,13 +104,12 @@ class TestAllowedRemoteExecutionFeaturesResource:
             # Second call: job_templates index (empty, no IDs to fetch)
             {"results": []},
         ]
+        mock_get_foreman_api.return_value = mock_api
 
         allowed_features = ["nonexistent_feature"]
-        register_remote_execution_features(
-            mcp, mock_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_features(mcp, allowed_features)
 
-        result = json.loads(self._get_resource_result(mcp))
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert len(result["features"]) == 1
         feature = result["features"][0]
@@ -115,7 +117,10 @@ class TestAllowedRemoteExecutionFeaturesResource:
         assert feature["id"] is None
         assert feature["error"] == "Feature not found in Foreman"
 
-    def test_feature_with_inaccessible_template(self, mcp, mock_get_context):
+    @patch("foreman_mcp_server.resources.remote_execution_features.get_foreman_api")
+    def test_feature_with_inaccessible_template(
+        self, mock_get_foreman_api, mcp, mock_ctx
+    ):
         """Test that a feature whose template is not returned is reported with error."""
         mock_api = Mock()
         mock_api.call.side_effect = [
@@ -134,13 +139,12 @@ class TestAllowedRemoteExecutionFeaturesResource:
             # Second call: job_templates index - template not returned (permissions)
             {"results": []},
         ]
+        mock_get_foreman_api.return_value = mock_api
 
         allowed_features = ["restricted_feature"]
-        register_remote_execution_features(
-            mcp, mock_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_features(mcp, allowed_features)
 
-        result = json.loads(self._get_resource_result(mcp))
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert len(result["features"]) == 1
         feature = result["features"][0]
@@ -149,7 +153,8 @@ class TestAllowedRemoteExecutionFeaturesResource:
         assert feature["job_template_id"] == 999
         assert feature["error"] == "Job template (id=999) not accessible"
 
-    def test_feature_without_job_template(self, mcp, mock_get_context):
+    @patch("foreman_mcp_server.resources.remote_execution_features.get_foreman_api")
+    def test_feature_without_job_template(self, mock_get_foreman_api, mcp, mock_ctx):
         """Test that a feature with no associated job template is reported."""
         mock_api = Mock()
         mock_api.call.side_effect = [
@@ -168,21 +173,21 @@ class TestAllowedRemoteExecutionFeaturesResource:
             # Second call: no job templates fetched (no IDs)
             {"results": []},
         ]
+        mock_get_foreman_api.return_value = mock_api
 
         allowed_features = ["no_template_feature"]
-        register_remote_execution_features(
-            mcp, mock_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_features(mcp, allowed_features)
 
-        result = json.loads(self._get_resource_result(mcp))
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert len(result["features"]) == 1
         feature = result["features"][0]
         assert feature["label"] == "no_template_feature"
         assert feature["error"] == "Feature has no associated job template"
 
+    @patch("foreman_mcp_server.resources.remote_execution_features.get_foreman_api")
     def test_multiple_allowed_features_batch_fetches_templates(
-        self, mcp, mock_get_context
+        self, mock_get_foreman_api, mcp, mock_ctx
     ):
         """Test that multiple allowed features result in a single batch template fetch."""
         mock_api = Mock()
@@ -220,13 +225,12 @@ class TestAllowedRemoteExecutionFeaturesResource:
                 ]
             },
         ]
+        mock_get_foreman_api.return_value = mock_api
 
         allowed_features = ["feature_a", "feature_b"]
-        register_remote_execution_features(
-            mcp, mock_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_features(mcp, allowed_features)
 
-        result = json.loads(self._get_resource_result(mcp))
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert len(result["features"]) == 2
         assert result["features"][0]["label"] == "feature_a"
@@ -243,23 +247,26 @@ class TestAllowedRemoteExecutionFeaturesResource:
         search_param = calls[1][0][2]["search"]
         assert search_param == "feature.label ^ (feature_a, feature_b)"
 
-    def test_api_error_returns_error_message(self, mcp, mock_get_context):
+    @patch("foreman_mcp_server.resources.remote_execution_features.get_foreman_api")
+    def test_api_error_returns_error_message(self, mock_get_foreman_api, mcp, mock_ctx):
         """Test that an API error returns an error message in the response."""
-        mock_api = Mock()
-        mock_api.call.side_effect = Exception("Connection refused")
-
-        allowed_features = ["some_feature"]
-        register_remote_execution_features(
-            mcp, mock_api, mock_get_context, allowed_features
+        mock_get_foreman_api.return_value.call.side_effect = Exception(
+            "Connection refused"
         )
 
-        result = json.loads(self._get_resource_result(mcp))
+        allowed_features = ["some_feature"]
+        register_remote_execution_features(mcp, allowed_features)
+
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert result["features"] == []
         assert result["allowed_labels"] == ["some_feature"]
         assert "Connection refused" in result["error"]
 
-    def test_mixed_found_and_not_found_features(self, mcp, mock_get_context):
+    @patch("foreman_mcp_server.resources.remote_execution_features.get_foreman_api")
+    def test_mixed_found_and_not_found_features(
+        self, mock_get_foreman_api, mcp, mock_ctx
+    ):
         """Test a mix of existing and non-existing features."""
         mock_api = Mock()
         mock_api.call.side_effect = [
@@ -285,13 +292,12 @@ class TestAllowedRemoteExecutionFeaturesResource:
                 ]
             },
         ]
+        mock_get_foreman_api.return_value = mock_api
 
         allowed_features = ["existing_feature", "missing_feature"]
-        register_remote_execution_features(
-            mcp, mock_api, mock_get_context, allowed_features
-        )
+        register_remote_execution_features(mcp, allowed_features)
 
-        result = json.loads(self._get_resource_result(mcp))
+        result = json.loads(self._get_resource_result(mcp, mock_ctx))
 
         assert len(result["features"]) == 2
 

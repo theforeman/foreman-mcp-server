@@ -3,12 +3,12 @@
 import json
 from collections.abc import Sequence
 
+from fastmcp import Context
+
 from foreman_mcp_server.utils.utils import get_foreman_api
 
 
-def register_remote_execution_features(
-    mcp, foreman_api, get_context, allowed_rex_features: Sequence[str] = ()
-):
+def register_remote_execution_features(mcp, allowed_rex_features: Sequence[str] = ()):
     @mcp.resource(
         name="Allowed Remote Execution Features",
         description=(
@@ -21,12 +21,12 @@ def register_remote_execution_features(
         mime_type="application/json",
         enabled=any(allowed_rex_features),
     )
-    async def allowed_remote_execution_features_resource() -> str:
+    async def allowed_remote_execution_features_resource(ctx: Context) -> str:
         if not any(allowed_rex_features):
             return json.dumps({"features": [], "allowed_labels": []}, indent=2)
 
         try:
-            api = foreman_api or get_foreman_api(get_context)
+            api = get_foreman_api(ctx)
 
             # Fetch all remote execution features from Foreman
             all_features = api.call(
