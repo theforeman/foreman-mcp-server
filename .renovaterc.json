@@ -18,7 +18,8 @@
   "tekton": {
     "enabled": true
   },
-  "schedule": ["at any time"],
+  "timezone": "America/New_York",
+  "schedule": ["after 9am and before 10am every weekday"],
   "packageRules": [
     {
       "description": "Group all Python dependencies from pyproject.toml",
