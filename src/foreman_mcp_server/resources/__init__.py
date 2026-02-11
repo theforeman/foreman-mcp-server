@@ -11,15 +11,11 @@ from .remote_execution_features import register_remote_execution_features
 # TODO: Maybe local logs can be a resource?
 
 
-def register_resources(
-    mcp, allowed_rex_features: Sequence[str] = ()
-):
+def register_resources(mcp, allowed_rex_features: Sequence[str] = ()):
     """Register all Foreman resources with the MCP server."""
     register_foreman_api_resources(mcp)
     register_foreman_api_resource_docs(mcp)
     register_foreman_dsl_sections(mcp)
     register_foreman_dsl_docs(mcp)
     register_foreman_template_resources(mcp)
-    register_remote_execution_features(
-        mcp, allowed_rex_features
-    )
+    register_remote_execution_features(mcp, allowed_rex_features)

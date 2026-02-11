@@ -28,7 +28,10 @@ class TestTriggerRemoteExecutionJob:
 
         result = format_job_invocation_success(response)
 
-        assert result.structured_content["message"] == "Remote execution job triggered successfully."
+        assert (
+            result.structured_content["message"]
+            == "Remote execution job triggered successfully."
+        )
         assert result.structured_content["job_invocation_id"] == 123
         assert result.structured_content["task_id"] == "abc-123-def"
         assert result.structured_content["description"] == "Apply errata RHSA-2025:1234"
@@ -54,7 +57,10 @@ class TestTriggerRemoteExecutionJob:
 
         result = format_job_invocation_failure(error)
 
-        assert result.structured_content["message"] == "Failed to trigger remote execution job."
+        assert (
+            result.structured_content["message"]
+            == "Failed to trigger remote execution job."
+        )
         assert result.structured_content["error"] == "Connection refused"
 
     def test_format_job_invocation_failure_with_http_error(self):
@@ -65,9 +71,14 @@ class TestTriggerRemoteExecutionJob:
 
         result = format_job_invocation_failure(error)
 
-        assert result.structured_content["message"] == "Failed to trigger remote execution job."
+        assert (
+            result.structured_content["message"]
+            == "Failed to trigger remote execution job."
+        )
         assert "422 Unprocessable Entity" in result.structured_content["error"]
-        assert result.structured_content["response"] == {"error": "Job template not found"}
+        assert result.structured_content["response"] == {
+            "error": "Job template not found"
+        }
 
     def test_format_job_invocation_failure_with_http_error_html_response(self):
         error = HTTPError(
@@ -171,4 +182,3 @@ class TestRexFeatureAllowlist:
 
         tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
         assert tool.enabled is False
-
