@@ -83,27 +83,43 @@ Follow these steps:
 
 Follow these steps:
 
-1. **Find applicable hosts**: Use the call_foreman_api_get tool to search for hosts where this errata is applicable:
+1. **Validate the errata exists**: Verify the errata is known to Foreman:
+   - Resource: "errata"
+   - Action: "index"
+   - Params: {{"search": "errata_id = {errata_id}"}}
+
+   If no results are found, inform me and stop — the errata may not be synced yet.
+   The human-readable errata ID (e.g., '{errata_id}') is passed directly to the
+   incremental update tool — no conversion to database IDs is needed.
+
+2. **Find applicable hosts**: Use the call_foreman_api_get tool to search for hosts where this errata is applicable:
    - Resource: "hosts"
    - Action: "index"
-   - Params: {{"search": "applicable_errata = {errata_id}", "per_page": "all"}}
+   - Params: {{"search": "applicable_errata = {errata_id}", "per_page": 100}}
+
+   If the results indicate more pages are available (check `total` vs returned count),
+   fetch additional pages to get the full list of affected hosts.
 
    If no hosts are found, inform me and stop.
 
-2. **Identify content views**: From the host results, collect the unique content views attached to those hosts.
-   For each host, look at the `content_facet_attributes` field which contains:
+3. **Identify content views and versions**: From the host results, collect the unique content views attached to those hosts.
+   For each host, extract from `content_facet_attributes`:
    - `content_view_id` and `content_view` (name)
    - `lifecycle_environment_id` and `lifecycle_environment` (name)
-   - `content_view_version_id` (not directly in the response, we need to look it up)
 
-   Use call_foreman_api_get to get the content view details:
+   Then, for each unique `content_view_id`, call:
    - Resource: "content_views"
    - Action: "show"
    - Params: {{"id": <content_view_id>}}
 
-   This will show the content view versions and which environments they are in.
+   From the response, look at the `versions` array. Each version has an `environment_ids` list.
+   Match the version whose `environment_ids` includes the host's `lifecycle_environment_id` —
+   that gives you the `content_view_version_id` to use for the incremental update.
 
-3. **Present findings and ask for confirmation**:
+   Note: the incremental update API can only target environments where the CV version
+   is already promoted. Collect the full list of environments per CV version for use in step 4.
+
+4. **Present findings and ask for confirmation**:
    - List the affected hosts grouped by content view and lifecycle environment
    - Show which content views need to be updated
    - Ask me if I want to:
@@ -113,51 +129,40 @@ Follow these steps:
 
    **IMPORTANT**: Do NOT proceed until I explicitly confirm which content views to update.
 
-4. **Get errata database IDs**: Look up the errata to get its internal IDs:
-   - Resource: "errata"
-   - Action: "index"
-   - Params: {{"search": "errata_id = {errata_id}"}}
+   Also, for each selected content view, show the environments where its version is currently promoted
+   and ask which environments to include in the incremental update.
+   Only environments where the CV version is already deployed are valid targets.
 
-   Collect the errata_id values from the results.
+   Finally, ask me if I also want to apply the errata to the affected hosts after the update.
+   If yes, the `update_hosts` parameter will be included in the incremental update call,
+   which triggers a Remote Execution job to install the errata on hosts.
+
+   **IMPORTANT**: Do NOT proceed until I confirm the content views, target environments,
+   and whether to apply errata to hosts.
 
 5. **Perform incremental content view update**: For each confirmed content view, use the incremental_content_view_update tool:
-   - content_view_version_environments: List of dicts with content_view_version_id and environment_ids for each CV version
-   - errata_ids: The errata IDs from step 4
+   - content_view_version_environments: List of dicts with content_view_version_id and
+     environment_ids as confirmed by the user in step 4.
+     The environment_ids MUST only include environments where the CV version is currently promoted.
+   - errata_ids: ["{errata_id}"] (the human-readable errata ID, passed directly)
    - description: "Adding errata {errata_id}"
    - resolve_dependencies: true
+   - propagate_all_composites: If any of the selected content views are components of composite
+     content views, ask me whether to propagate the incremental update to all composite CVs
+     that include the updated components. If yes, set propagate_all_composites to true.
+   - update_hosts: If the user confirmed host application in step 4, include:
+     {{"included": {{"search": "applicable_errata = {errata_id}"}}}}
+     This triggers a Remote Execution job to install the errata on hosts.
 
    Use poll_task to wait for each update to complete.
 
-6. **Report incremental update results**: After all updates complete, summarize:
-   - Which content views were updated
-   - Whether each update succeeded or failed
-   - The new content view version numbers created
+   **IMPORTANT**: Do NOT perform the update without my confirmation of which content views to update and which environments to promote to.
 
-7. **Ask about publishing**: Ask me if I want to publish new versions of the updated content views.
-   If yes, for each content view:
-   - Use the publish_content_view tool with the content view ID
-   - Use poll_task to wait for publishing to complete
-   - Report the new version created
-
-   **IMPORTANT**: Do NOT publish without my confirmation.
-
-8. **Ask about promotion**: After publishing, identify the lifecycle environments available for each content view:
-   - Use call_foreman_api_get to list lifecycle environments:
-     Resource: "lifecycle_environments"
-     Action: "index"
-
-   For each environment (e.g., Dev, Test, Production):
-   - Ask me individually: "Promote to <environment_name>?"
-   - Only promote to environments I confirm
-   - Use the promote_content_view_version tool for confirmed environments
-   - Use poll_task to wait for each promotion to complete
-
-   **IMPORTANT**: Ask for confirmation for EACH environment individually. Do NOT batch promote without asking.
-
-9. **Final summary**: Provide a complete summary:
+6. **Final summary**: Provide a complete summary:
    - Errata: {errata_id}
    - Content views updated (with new version numbers)
    - Environments promoted to
+   - Whether errata was applied to hosts
    - Hosts that now have access to the errata
    - Any failures or issues encountered
 """
