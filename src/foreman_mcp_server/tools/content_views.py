@@ -1,7 +1,9 @@
 import json
+from typing import Annotated
 
 from fastmcp.server.context import Context
 from fastmcp.tools.tool import ToolResult
+from pydantic import Field
 from requests.exceptions import HTTPError
 
 from ..utils.content_utils import build_tool_result
@@ -29,28 +31,46 @@ Returns a task ID for polling with poll_task.""",
         },
     )
     async def incremental_content_view_update(
-        content_view_version_environments: list[dict],
-        errata_ids: list[str],
+        content_view_version_environments: Annotated[
+            list[dict],
+            Field(
+                description=(
+                    "List of dicts, each containing:\n"
+                    "- content_view_version_id (int): The CV version ID\n"
+                    "- environment_ids (list[int]): Lifecycle environment IDs to promote the new version to"
+                )
+            ),
+        ],
+        errata_ids: Annotated[
+            list[str],
+            Field(description="List of errata IDs to add (e.g., ['RHSA-2025:1234'])"),
+        ],
         ctx: Context,
-        description: str | None = None,
-        resolve_dependencies: bool = True,
-        propagate_all_composites: bool = False,
-        update_hosts: dict | None = None,
+        description: Annotated[
+            str | None,
+            Field(description="Optional description for the new CV versions"),
+        ] = None,
+        resolve_dependencies: Annotated[
+            bool,
+            Field(
+                description="Whether to resolve and copy dependencies (default: True)"
+            ),
+        ] = True,
+        propagate_all_composites: Annotated[
+            bool,
+            Field(
+                description="Whether to propagate to all composite CVs (default: False)"
+            ),
+        ] = False,
+        update_hosts: Annotated[
+            dict | None,
+            Field(
+                description="Optional dict for applying errata to hosts after update, containing:\n- included: {'search': '<host_search_query>'} or {'ids': [<host_ids>]}\n- excluded: {'ids': [<host_ids>]} (optional)"
+            ),
+        ] = None,
     ) -> ToolResult:
         """
         Perform an incremental update on content view versions to add errata.
-
-        Args:
-            content_view_version_environments: List of dicts, each containing:
-                - content_view_version_id (int): The CV version ID
-                - environment_ids (list[int]): Lifecycle environment IDs to promote the new version to
-            errata_ids: List of errata IDs to add (e.g., ["RHSA-2025:1234"])
-            description: Optional description for the new CV versions
-            resolve_dependencies: Whether to resolve and copy dependencies (default: True)
-            propagate_all_composites: Whether to propagate to all composite CVs (default: False)
-            update_hosts: Optional dict for applying errata to hosts after update, containing:
-                - included: {"search": "<host_search_query>"} or {"ids": [<host_ids>]}
-                - excluded: {"ids": [<host_ids>]} (optional)
         """
         try:
             api = get_foreman_api(ctx)
@@ -99,20 +119,28 @@ Before using this tool:
         },
     )
     async def publish_content_view(
-        content_view_id: int,
+        content_view_id: Annotated[
+            int, Field(description="The ID of the content view to publish")
+        ],
         ctx: Context,
-        description: str | None = None,
-        environment_ids: list[int] | None = None,
-        is_force_promote: bool = False,
+        description: Annotated[
+            str | None, Field(description="Optional description for the new version")
+        ] = None,
+        environment_ids: Annotated[
+            list[int] | None,
+            Field(
+                description="Optional list of lifecycle environment IDs to promote to after publishing"
+            ),
+        ] = None,
+        is_force_promote: Annotated[
+            bool,
+            Field(
+                description="Force promotion bypassing lifecycle environment restrictions (default: False)"
+            ),
+        ] = False,
     ) -> ToolResult:
         """
         Publish a new version of a content view.
-
-        Args:
-            content_view_id: The ID of the content view to publish
-            description: Optional description for the new version
-            environment_ids: Optional list of lifecycle environment IDs to promote to after publishing
-            is_force_promote: Force promotion bypassing lifecycle environment restrictions (default: False)
         """
         try:
             api = get_foreman_api(ctx)
@@ -158,20 +186,26 @@ Before using this tool:
         },
     )
     async def promote_content_view_version(
-        content_view_version_id: int,
-        environment_ids: list[int],
+        content_view_version_id: Annotated[
+            int, Field(description="The ID of the content view version to promote")
+        ],
+        environment_ids: Annotated[
+            list[int],
+            Field(description="List of lifecycle environment IDs to promote to"),
+        ],
         ctx: Context,
-        description: str | None = None,
-        force: bool = False,
+        description: Annotated[
+            str | None, Field(description="Optional description for the promotion")
+        ] = None,
+        force: Annotated[
+            bool,
+            Field(
+                description="Force promotion bypassing lifecycle environment restrictions (default: False)"
+            ),
+        ] = False,
     ) -> ToolResult:
         """
         Promote a content view version to lifecycle environments.
-
-        Args:
-            content_view_version_id: The ID of the content view version to promote
-            environment_ids: List of lifecycle environment IDs to promote to
-            description: Optional description for the promotion
-            force: Force promotion bypassing lifecycle environment restrictions (default: False)
         """
         try:
             api = get_foreman_api(ctx)
