@@ -8,12 +8,7 @@
   },
   "pip-compile": {
     "enabled": true,
-    "managerFilePatterns": ["requirements\\.txt$", "requirements-build\\.txt$"],
-    "lockFileMaintenance": {
-      "enabled": true,
-      "branchTopic": "pip-compile-refresh",
-      "commitMessageAction": "Refresh pip-compile and uv.lock outputs"
-    }
+    "managerFilePatterns": ["requirements-build\\.txt$"]
   },
   "tekton": {
     "enabled": true
@@ -26,11 +21,19 @@
   "updatePinnedDependencies": false,
   "packageRules": [
     {
-      "description": "Group all Python dependencies from pyproject.toml",
-      "matchManagers": ["pep621", "pip_requirements", "pip-compile"],
-      "matchFileNames": ["pyproject.toml", "requirements*.txt", "uv.lock"],
-      "groupName": "python dependencies",
-      "groupSlug": "python-deps"
+      "description": "Patch-only updates for pyproject.toml dependencies",
+      "matchManagers": ["pep621"],
+      "matchFileNames": ["pyproject.toml"],
+      "matchUpdateTypes": ["patch"],
+      "groupName": "pyproject.toml dependencies",
+      "groupSlug": "pyproject-deps"
+    },
+    {
+      "description": "requirements-build.txt updates in separate PR",
+      "matchManagers": ["pip_requirements", "pip-compile"],
+      "matchFileNames": ["requirements-build.txt"],
+      "groupName": "requirements-build",
+      "groupSlug": "requirements-build"
     },
     {
       "description": "Containerfile.ubi9 updates in separate PR",
