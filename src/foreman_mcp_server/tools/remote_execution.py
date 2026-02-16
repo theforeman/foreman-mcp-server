@@ -4,6 +4,7 @@ from collections.abc import Sequence
 from fastmcp import Context, FastMCP
 from fastmcp.exceptions import ToolError
 from fastmcp.tools.tool import ToolResult
+from pydantic import Field
 from requests.exceptions import HTTPError
 
 from ..utils.content_utils import build_tool_result
@@ -36,21 +37,25 @@ Returns the job invocation ID and task ID for polling.""",
         enabled=any(allowed_rex_features),
     )
     async def trigger_remote_execution_job(
-        feature: str,
-        search_query: str,
         ctx: Context,
-        inputs: dict | None = None,
-        description: str | None = None,
+        feature: str = Field(
+            ...,
+            description="The remote execution feature label (e.g., 'katello_errata_install')",
+        ),
+        search_query: str = Field(
+            ...,
+            description="Host search query (e.g., 'installable_errata = RHSA-2025:1234')",
+        ),
+        inputs: dict | None = Field(
+            default=None,
+            description="Optional dictionary of template inputs (varies by template)",
+        ),
+        description: str | None = Field(
+            default=None,
+            description="Optional description for the job invocation",
+        ),
     ) -> ToolResult:
-        """
-        Trigger a remote execution job on target hosts using a remote execution feature.
-
-        Args:
-            feature: The remote execution feature label (e.g., "katello_errata_install")
-            search_query: Host search query (e.g., "installable_errata = RHSA-2025:1234")
-            inputs: Optional dictionary of template inputs (varies by template)
-            description: Optional description for the job invocation
-        """
+        """Trigger a remote execution job on target hosts using a remote execution feature."""
         # Validate feature against allowlist
         if feature not in allowed_rex_features:
             raise ToolError(
