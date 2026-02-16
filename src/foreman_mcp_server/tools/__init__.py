@@ -10,19 +10,20 @@ from .tasks import register_task_tools
 # TODO: Maybe foreman-maintain can be a tool?
 
 
-def register_tools(mcp, allowed_rex_features=None):
+def register_tools(mcp, allowed_rex_features=None, allowed_cv_actions=()):
     """Register all tools with the MCP server.
 
     Args:
         mcp: The FastMCP server instance
         allowed_rex_features: Optional list of allowed remote execution feature labels
+        allowed_cv_actions: Optional list of allowed content view actions
     """
 
     register_foreman_api_methods(mcp)
-    register_content_view_tools(mcp)
     register_fetch_foreman_dsl_docs(mcp)
     # TODO: Remove when Claude Desktop supports Resource with parameters
     register_get_foreman_api_resource_docs(mcp)
     register_get_foreman_dsl_docs(mcp)
     register_remote_execution_tools(mcp, allowed_rex_features)
     register_task_tools(mcp)
+    register_content_view_tools(mcp, allowed_cv_actions)

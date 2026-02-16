@@ -176,7 +176,7 @@ class TestToolRegistration:
 
     def test_tools_are_registered(self, mcp):
         """Test that all content view tools are registered."""
-        register_content_view_tools(mcp)
+        register_content_view_tools(mcp, ["incremental_update", "publish", "promote"])
 
         tools = mcp._tool_manager._tools
         assert "incremental_content_view_update" in tools
@@ -185,7 +185,7 @@ class TestToolRegistration:
 
     def test_incremental_update_tool_annotations(self, mcp):
         """Test that tool annotations are set correctly."""
-        register_content_view_tools(mcp)
+        register_content_view_tools(mcp, ["incremental_update"])
 
         tool = mcp._tool_manager._tools["incremental_content_view_update"]
         assert tool.annotations.readOnlyHint is False
@@ -193,7 +193,7 @@ class TestToolRegistration:
 
     def test_publish_tool_annotations(self, mcp):
         """Test that publish tool annotations are set correctly."""
-        register_content_view_tools(mcp)
+        register_content_view_tools(mcp, ["publish"])
 
         tool = mcp._tool_manager._tools["publish_content_view"]
         assert tool.annotations.readOnlyHint is False
@@ -201,8 +201,44 @@ class TestToolRegistration:
 
     def test_promote_tool_annotations(self, mcp):
         """Test that promote tool annotations are set correctly."""
-        register_content_view_tools(mcp)
+        register_content_view_tools(mcp, ["promote"])
 
         tool = mcp._tool_manager._tools["promote_content_view_version"]
         assert tool.annotations.readOnlyHint is False
         assert tool.annotations.destructiveHint is True
+
+    def test_empty_allowlist_disables_all_tools(self, mcp):
+        """Test that an empty allowlist registers all tools as disabled."""
+        register_content_view_tools(mcp, [])
+
+        tools = mcp._tool_manager._tools
+        assert tools["incremental_content_view_update"].enabled is False
+        assert tools["publish_content_view"].enabled is False
+        assert tools["promote_content_view_version"].enabled is False
+
+    def test_default_allowlist_disables_all_tools(self, mcp):
+        """Test that the default (no allowlist) registers all tools as disabled."""
+        register_content_view_tools(mcp)
+
+        tools = mcp._tool_manager._tools
+        assert tools["incremental_content_view_update"].enabled is False
+        assert tools["publish_content_view"].enabled is False
+        assert tools["promote_content_view_version"].enabled is False
+
+    def test_selective_allowlist_enables_only_specified_tools(self, mcp):
+        """Test that only specified actions are enabled."""
+        register_content_view_tools(mcp, ["publish"])
+
+        tools = mcp._tool_manager._tools
+        assert tools["incremental_content_view_update"].enabled is False
+        assert tools["publish_content_view"].enabled is True
+        assert tools["promote_content_view_version"].enabled is False
+
+    def test_all_actions_enabled(self, mcp):
+        """Test that all actions can be enabled."""
+        register_content_view_tools(mcp, ["incremental_update", "publish", "promote"])
+
+        tools = mcp._tool_manager._tools
+        assert tools["incremental_content_view_update"].enabled is True
+        assert tools["publish_content_view"].enabled is True
+        assert tools["promote_content_view_version"].enabled is True

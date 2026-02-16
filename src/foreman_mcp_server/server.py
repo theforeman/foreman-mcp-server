@@ -111,6 +111,14 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
     show_default=True,
     callback=parse_comma_separated_list,
 )
+@click.option(
+    "--allowed-cv-actions",
+    help="Comma-separated list of allowed content view actions for the server to execute. If not specified, no actions are allowed.",
+    envvar="FOREMAN_ALLOWED_CV_ACTIONS",
+    default="",
+    show_default=True,
+    callback=parse_comma_separated_list,
+)
 @click.pass_context
 def main(
     ctx: click.Context,
@@ -124,6 +132,7 @@ def main(
     verify_ssl: bool,
     ca_bundle: str,
     allowed_rex_features: list[str],
+    allowed_cv_actions: list[str],
 ) -> int:
     """Run the Foreman MCP server."""
 
@@ -151,7 +160,7 @@ def main(
     if ca_bundle:
         verify_ssl = ca_bundle
 
-    register_tools(mcp, allowed_rex_features)
+    register_tools(mcp, allowed_rex_features, allowed_cv_actions)
     register_resources(mcp, allowed_rex_features)
     register_prompts(mcp)
 

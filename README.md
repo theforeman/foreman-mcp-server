@@ -75,20 +75,12 @@ To use custom CA certificates with the container, you can either mount your CA b
 
 **Option 1: Mount to default location (recommended)**
 ```shell
-# Standard container - mount to /app/ca.pem
+# Standard container or UBI9 image - mount to /app/ca.pem
 podman run -it -p 8080:8080 \
   -v /path/to/your-ca-bundle.pem:/app/ca.pem:ro,Z \
   foreman-mcp-server \
   --foreman-url https://my-foreman-instance.something.somewhere \
   --transport streamable-http
-
-# UBI9 image - mount to /opt/app-root/src/ca.pem  
-podman run -it -p 8080:8080 \
-  -v /path/to/your-ca-bundle.pem:/opt/app-root/src/ca.pem:ro,Z \
-  foreman-mcp-server \
-  --foreman-url https://my-foreman-instance.something.somewhere \
-  --transport streamable-http
-```
 
 **Option 2: Mount to custom location**
 ```shell
@@ -243,3 +235,44 @@ To find all available features in your Foreman instance, you can use the API:
 ```shell
 curl -u $USER:$PASSWORD https://foreman.example.com/api/remote_execution_features
 ```
+
+# Content View Actions
+
+The MCP server can publish, promote, and incrementally update content views. This functionality is **opt-in** and disabled by default for security reasons.
+
+## Enabling Content View Actions
+
+To enable content view actions, you must explicitly specify which actions are allowed using the `--allowed-cv-actions` option or the `FOREMAN_ALLOWED_CV_ACTIONS` environment variable:
+
+```shell
+uv run foreman-mcp-server \
+  --foreman-url https://foreman.example.com \
+  --foreman-username $FOREMAN_USERNAME \
+  --foreman-password $FOREMAN_PASSWORD \
+  --allowed-cv-actions "publish,promote,incremental_update"
+```
+
+Or using the environment variable:
+
+```shell
+export FOREMAN_ALLOWED_CV_ACTIONS="publish,promote,incremental_update"
+uv run foreman-mcp-server ...
+```
+
+## How It Works
+
+1. **Allowlist-based security**: Only content view actions explicitly listed in `--allowed-cv-actions` can be triggered. If the option is not set or empty, all content view tools are disabled.
+
+2. **Available tools**: When specific actions are allowed, the corresponding tools become enabled:
+
+| Action | Tool | Description |
+|--------|------|-------------|
+| `publish` | `publish_content_view` | Publishes a new version of a content view |
+| `promote` | `promote_content_view_version` | Promotes a content view version to lifecycle environments |
+| `incremental_update` | `incremental_content_view_update` | Performs an incremental update adding errata to content view versions |
+
+3. **Usage flow**: To use the content view tools, the AI agent should:
+   1. Use `call_foreman_api_get` to find the content view (resource: `"content_views"`, action: `"index"`)
+   2. Publish a new version with `publish_content_view`
+   3. Promote the version with `promote_content_view_version`
+   4. Use `poll_task` to monitor the task progress

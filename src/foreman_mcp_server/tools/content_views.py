@@ -1,7 +1,8 @@
 import json
+from collections.abc import Sequence
 from typing import Annotated
 
-from fastmcp.server.context import Context
+from fastmcp import Context, FastMCP
 from fastmcp.tools.tool import ToolResult
 from pydantic import Field
 from requests.exceptions import HTTPError
@@ -10,8 +11,11 @@ from ..utils.content_utils import build_tool_result
 from ..utils.utils import get_foreman_api, mcp_info_headers
 
 
-def register_content_view_tools(mcp):
+def register_content_view_tools(
+    mcp: FastMCP, allowed_cv_actions: Sequence[str] = ()
+) -> None:
     @mcp.tool(
+        enabled="incremental_update" in allowed_cv_actions,
         description="""Performs an incremental update on one or more content view versions, adding specified errata.
 This creates new minor content view versions containing the added errata and optionally promotes them to specified lifecycle environments.
 
@@ -102,6 +106,7 @@ Returns a task ID for polling with poll_task.""",
             return format_content_view_failure("incremental update", e)
 
     @mcp.tool(
+        enabled="publish" in allowed_cv_actions,
         description="""Publishes a new version of a content view.
 This creates a new content view version with the latest content from its repositories.
 Returns a task ID for polling with poll_task.
@@ -168,6 +173,7 @@ Before using this tool:
             return format_content_view_failure("publish", e)
 
     @mcp.tool(
+        enabled="promote" in allowed_cv_actions,
         description="""Promotes a content view version to one or more lifecycle environments.
 This makes the content view version available in the specified environments so hosts can access its content.
 Returns a task ID for polling with poll_task.
