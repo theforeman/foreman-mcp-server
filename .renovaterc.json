@@ -18,6 +18,9 @@
   "tekton": {
     "enabled": true
   },
+  "pyenv": {
+    "enabled": false
+  },
   "timezone": "America/New_York",
   "schedule": ["after 9am and before 10am every weekday"],
   "packageRules": [
