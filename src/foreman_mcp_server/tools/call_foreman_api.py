@@ -52,7 +52,7 @@ def register_foreman_api_methods(mcp):
             "The 'params' argument must be a JSON string representing "
             "the request parameters, e.g. "
             '\'{"search": "name ~ test", "per_page": 20}\' or '
-            '\'{"id": 1}\'.'
+            "'{\"id\": 1}'."
         ),
         tags=("foreman", "api", "get", "resource", "remote"),
         annotations={
