@@ -113,7 +113,9 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
 )
 @click.option(
     "--allowed-cv-actions",
-    help="Comma-separated list of allowed content view actions for the server to execute. If not specified, no actions are allowed.",
+    help="Comma-separated list of allowed content view actions for the server to execute. If not specified, no actions are allowed."
+    " "
+    "Currently supported actions: incremental_update, publish, promote.",
     envvar="FOREMAN_ALLOWED_CV_ACTIONS",
     default="",
     show_default=True,
