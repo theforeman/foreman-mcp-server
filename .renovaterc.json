@@ -21,10 +21,16 @@
   "updatePinnedDependencies": false,
   "packageRules": [
     {
-      "description": "Patch-only updates for pyproject.toml dependencies",
+      "description": "Disable major and minor updates for fastmcp only",
+      "matchManagers": ["pep621"],
+      "matchPackageNames": ["fastmcp"],
+      "matchUpdateTypes": ["major", "minor"],
+      "enabled": false
+    },
+    {
+      "description": "Group all pyproject.toml dependencies in one PR",
       "matchManagers": ["pep621"],
       "matchFileNames": ["pyproject.toml"],
-      "matchUpdateTypes": ["patch"],
       "groupName": "pyproject.toml dependencies",
       "groupSlug": "pyproject-deps"
     },
