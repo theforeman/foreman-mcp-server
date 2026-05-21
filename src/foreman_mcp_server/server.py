@@ -181,12 +181,42 @@ def main(
     if transport == "stdio":
         mcp.run(transport="stdio", show_banner=False)
     else:
-        mcp.run(
-            transport="streamable-http",
-            host=host,
-            port=port,
-            show_banner=False,
-            log_level=log_level,
-        )
+        _run_http(mcp, host, port, log_level)
 
     ctx.exit(0)
+
+
+def _run_http(mcp: FastMCP, host: str, port: int, log_level: str) -> None:
+    """Run the server with a pre-bound socket.
+
+    Python's asyncio sets IPV6_V6ONLY=True on IPv6 sockets, preventing
+    them from accepting IPv4 connections. We create the socket ourselves
+    with IPV6_V6ONLY=0 for IPv6 addresses, then pass it to uvicorn
+    directly, bypassing asyncio's socket creation.
+    """
+    import asyncio
+
+    import uvicorn
+
+    async def _serve() -> None:
+        app = mcp.http_app(transport="streamable-http")
+
+        if ":" in host:
+            sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+            sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+        else:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((host, port))
+        sock.set_inheritable(True)
+
+        config = uvicorn.Config(
+            app,
+            log_level=log_level.lower(),
+            timeout_graceful_shutdown=0,
+            lifespan="on",
+        )
+        server = uvicorn.Server(config)
+        await server.serve(sockets=[sock])
+
+    asyncio.run(_serve())
