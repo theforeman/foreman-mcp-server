@@ -22,7 +22,7 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/foreman/foreman-mcp-server-stage:{{revision}}
+    value: quay.io/foreman/stage/foreman-mcp-server:{{revision}}
   - name: dockerfile
     value: Containerfile
   - name: build-source-image
