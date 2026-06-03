@@ -2,6 +2,21 @@ import logging
 
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
+_SAFE_HEADERS = frozenset(
+    {
+        "accept",
+        "accept-encoding",
+        "accept-language",
+        "cache-control",
+        "connection",
+        "content-length",
+        "content-type",
+        "host",
+        "mcp-session-id",
+        "user-agent",
+    }
+)
+
 
 class LoggingMiddleware(Middleware):
     """Middleware that logs all MCP operations."""
@@ -33,16 +48,12 @@ class LoggingMiddleware(Middleware):
         )
 
     def _sanitize_headers(self, headers):
-        """Sanitize headers to avoid logging sensitive information."""
-        sanitized_headers = {}
-        for key, value in headers.items():
-            if key.lower() in [
-                "foreman_password",
-                "foreman_token",
-                "password",
-                "token",
-            ]:
-                sanitized_headers[key] = "******"
-            else:
-                sanitized_headers[key] = value
-        return sanitized_headers
+        """Sanitize headers to avoid logging sensitive information.
+
+        Only headers in _SAFE_HEADERS have their values logged.
+        All other header values are masked, though keys are always visible.
+        """
+        return {
+            key: value if key.lower() in _SAFE_HEADERS else "******"
+            for key, value in headers.items()
+        }
