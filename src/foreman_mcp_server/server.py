@@ -63,7 +63,7 @@ def assert_server_mode(foreman_username: str, foreman_password: str, transport: 
 )
 @click.option(
     "--log-level",
-    default="INFO",
+    default="WARNING",
     help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
     callback=normalize_log_level,
     show_default=True,
