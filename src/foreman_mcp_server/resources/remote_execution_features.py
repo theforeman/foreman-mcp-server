@@ -9,7 +9,7 @@ from foreman_mcp_server.utils.utils import get_foreman_api
 
 
 def register_remote_execution_features(mcp, allowed_rex_features: Sequence[str] = ()):
-    @mcp.resource(
+    @mcp.local_provider.resource(
         name="Allowed Remote Execution Features",
         description=(
             "Returns the list of allowed remote execution features. "

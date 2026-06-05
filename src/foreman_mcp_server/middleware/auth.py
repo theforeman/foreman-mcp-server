@@ -1,4 +1,5 @@
 import apypie
+from fastmcp.server.dependencies import get_http_request
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 
@@ -12,31 +13,29 @@ class AuthMiddleware(Middleware):
 
     async def on_request(self, context: MiddlewareContext, call_next):
         if context.fastmcp_context:
-            foreman_api = self.foreman_api or self.get_foreman_api_from_request(context)
+            foreman_api = self.foreman_api or self.get_foreman_api_from_request()
             if foreman_api:
-                context.fastmcp_context.foreman_api = foreman_api
+                # Store in _request_state so it is inherited by the tool's context.
+                # call_tool() creates a fresh Context for tool execution but child
+                # contexts inherit _request_state from their parent.
+                context.fastmcp_context._request_state["foreman_api"] = foreman_api
 
         return await call_next(context)
 
-    def get_foreman_api_from_request(
-        self, context: MiddlewareContext
-    ) -> apypie.ForemanApi | None:
-        if context.fastmcp_context and context.fastmcp_context.request_context:
-            foreman_username = (
-                context.fastmcp_context.request_context.request.headers.get(
-                    "foreman_username"
-                )
+    def get_foreman_api_from_request(self) -> apypie.ForemanApi | None:
+        try:
+            request = get_http_request()
+        except RuntimeError:
+            return None
+        foreman_username = request.headers.get("foreman_username")
+        foreman_token = request.headers.get("foreman_token")
+        if not foreman_username or not foreman_token:
+            raise RuntimeError(
+                "Foreman username and token must be provided in headers."
             )
-            foreman_token = context.fastmcp_context.request_context.request.headers.get(
-                "foreman_token"
-            )
-            if not foreman_username or not foreman_token:
-                raise RuntimeError(
-                    "Foreman username and token must be provided in headers."
-                )
-            return apypie.ForemanApi(
-                uri=self.foreman_url,
-                username=foreman_username,
-                password=foreman_token,
-                verify_ssl=self.verify_ssl,
-            )
+        return apypie.ForemanApi(
+            uri=self.foreman_url,
+            username=foreman_username,
+            password=foreman_token,
+            verify_ssl=self.verify_ssl,
+        )

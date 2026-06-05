@@ -1,5 +1,6 @@
 import logging
 
+from fastmcp.server.dependencies import get_http_request
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
 _SAFE_HEADERS = frozenset(
@@ -37,16 +38,19 @@ class LoggingMiddleware(Middleware):
         return await call_next(context)
 
     def _log_client_info(self, fastmcp_context):
-        self.logger.debug(
-            f"  Client host: {fastmcp_context.request_context.request.client.host}:{fastmcp_context.request_context.request.client.port}"
-        )
-        self.logger.debug(
-            f"  Client headers: {self._sanitize_headers(fastmcp_context.request_context.request.headers)}"
-        )
+        request = get_http_request()
+        if request is not None:
+            self.logger.debug(
+                f"  Client host: {request.client.host}:{request.client.port}"
+            )
+            self.logger.debug(
+                f"  Client headers: {self._sanitize_headers(request.headers)}"
+            )
         self.logger.debug(f"  Client ID: {fastmcp_context.client_id}")
-        self.logger.debug(
-            f"  Client params: {fastmcp_context.request_context.session.client_params}"
-        )
+        if fastmcp_context.request_context:
+            self.logger.debug(
+                f"  Client params: {fastmcp_context.request_context.session.client_params}"
+            )
 
     def _sanitize_headers(self, headers):
         """Sanitize headers to avoid logging sensitive information.
