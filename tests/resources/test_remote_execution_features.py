@@ -22,12 +22,26 @@ class TestAllowedRemoteExecutionFeaturesResource:
     def mock_ctx(self):
         return Mock()
 
-    def _get_resource_result(self, mcp, ctx):
+    def _get_resource_result(self, mcp, _ctx):
         """Helper to get the resource function and run it."""
-        resource = mcp._resource_manager._resources[
-            "foreman://remote_execution/allowed_features"
-        ]
-        return asyncio.run(resource.fn(ctx))
+        from fastmcp import FastMCP
+        from fastmcp.server.context import Context
+
+        all_resources = asyncio.run(mcp.local_provider._list_resources())
+        resource = next(
+            r
+            for r in all_resources
+            if str(r.uri) == "foreman://remote_execution/allowed_features"
+        )
+
+        async def _call():
+            # In fastmcp v3, resource.fn is wrapped by without_injected_parameters
+            # which requires an active Context for DI to inject ctx.
+            test_mcp = FastMCP("test-helper")
+            async with Context(fastmcp=test_mcp):
+                return await resource.fn()
+
+        return asyncio.run(_call())
 
     def test_empty_allowlist_returns_empty_features(self, mcp, mock_ctx):
         """Test that an empty allowlist returns no features."""

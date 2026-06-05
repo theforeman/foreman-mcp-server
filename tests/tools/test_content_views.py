@@ -1,3 +1,4 @@
+import asyncio
 from unittest.mock import Mock
 
 import pytest
@@ -174,20 +175,27 @@ class TestToolRegistration:
     def mcp(self):
         return FastMCP(name="Test MCP Server")
 
+    def _enabled_tool_names(self, mcp):
+        return {t.name for t in asyncio.run(mcp.list_tools())}
+
+    def _get_tool(self, mcp, name):
+        all_tools = asyncio.run(mcp.local_provider._list_tools())
+        return next((t for t in all_tools if t.name == name), None)
+
     def test_tools_are_registered(self, mcp):
         """Test that all content view tools are registered."""
         register_content_view_tools(mcp, ["incremental_update", "publish", "promote"])
 
-        tools = mcp._tool_manager._tools
-        assert "incremental_content_view_update" in tools
-        assert "publish_content_view" in tools
-        assert "promote_content_view_version" in tools
+        enabled = self._enabled_tool_names(mcp)
+        assert "incremental_content_view_update" in enabled
+        assert "publish_content_view" in enabled
+        assert "promote_content_view_version" in enabled
 
     def test_incremental_update_tool_annotations(self, mcp):
         """Test that tool annotations are set correctly."""
         register_content_view_tools(mcp, ["incremental_update"])
 
-        tool = mcp._tool_manager._tools["incremental_content_view_update"]
+        tool = self._get_tool(mcp, "incremental_content_view_update")
         assert tool.annotations.readOnlyHint is False
         assert tool.annotations.destructiveHint is True
 
@@ -195,7 +203,7 @@ class TestToolRegistration:
         """Test that publish tool annotations are set correctly."""
         register_content_view_tools(mcp, ["publish"])
 
-        tool = mcp._tool_manager._tools["publish_content_view"]
+        tool = self._get_tool(mcp, "publish_content_view")
         assert tool.annotations.readOnlyHint is False
         assert tool.annotations.destructiveHint is True
 
@@ -203,7 +211,7 @@ class TestToolRegistration:
         """Test that promote tool annotations are set correctly."""
         register_content_view_tools(mcp, ["promote"])
 
-        tool = mcp._tool_manager._tools["promote_content_view_version"]
+        tool = self._get_tool(mcp, "promote_content_view_version")
         assert tool.annotations.readOnlyHint is False
         assert tool.annotations.destructiveHint is True
 
@@ -211,34 +219,34 @@ class TestToolRegistration:
         """Test that an empty allowlist registers all tools as disabled."""
         register_content_view_tools(mcp, [])
 
-        tools = mcp._tool_manager._tools
-        assert tools["incremental_content_view_update"].enabled is False
-        assert tools["publish_content_view"].enabled is False
-        assert tools["promote_content_view_version"].enabled is False
+        enabled = self._enabled_tool_names(mcp)
+        assert "incremental_content_view_update" not in enabled
+        assert "publish_content_view" not in enabled
+        assert "promote_content_view_version" not in enabled
 
     def test_default_allowlist_disables_all_tools(self, mcp):
         """Test that the default (no allowlist) registers all tools as disabled."""
         register_content_view_tools(mcp)
 
-        tools = mcp._tool_manager._tools
-        assert tools["incremental_content_view_update"].enabled is False
-        assert tools["publish_content_view"].enabled is False
-        assert tools["promote_content_view_version"].enabled is False
+        enabled = self._enabled_tool_names(mcp)
+        assert "incremental_content_view_update" not in enabled
+        assert "publish_content_view" not in enabled
+        assert "promote_content_view_version" not in enabled
 
     def test_selective_allowlist_enables_only_specified_tools(self, mcp):
         """Test that only specified actions are enabled."""
         register_content_view_tools(mcp, ["publish"])
 
-        tools = mcp._tool_manager._tools
-        assert tools["incremental_content_view_update"].enabled is False
-        assert tools["publish_content_view"].enabled is True
-        assert tools["promote_content_view_version"].enabled is False
+        enabled = self._enabled_tool_names(mcp)
+        assert "incremental_content_view_update" not in enabled
+        assert "publish_content_view" in enabled
+        assert "promote_content_view_version" not in enabled
 
     def test_all_actions_enabled(self, mcp):
         """Test that all actions can be enabled."""
         register_content_view_tools(mcp, ["incremental_update", "publish", "promote"])
 
-        tools = mcp._tool_manager._tools
-        assert tools["incremental_content_view_update"].enabled is True
-        assert tools["publish_content_view"].enabled is True
-        assert tools["promote_content_view_version"].enabled is True
+        enabled = self._enabled_tool_names(mcp)
+        assert "incremental_content_view_update" in enabled
+        assert "publish_content_view" in enabled
+        assert "promote_content_view_version" in enabled

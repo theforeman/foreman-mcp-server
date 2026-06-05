@@ -16,7 +16,7 @@ def register_remote_execution_tools(
     allowed_rex_features: Sequence[str] = (),
 ) -> None:
 
-    @mcp.tool(
+    @mcp.local_provider.tool(
         description="""Triggers a remote execution job on Foreman using a remote execution feature.
 
 Before using this tool, the agent should:

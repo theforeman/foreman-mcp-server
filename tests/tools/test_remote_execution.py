@@ -143,7 +143,8 @@ class TestRexFeatureAllowlist:
         register_remote_execution_tools(mcp, allowed_features)
 
         # Get the registered tool function
-        tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
+        all_tools = asyncio.run(mcp.local_provider._list_tools())
+        tool = next(t for t in all_tools if t.name == "trigger_remote_execution_job")
 
         result = asyncio.run(
             tool.fn(
@@ -161,7 +162,8 @@ class TestRexFeatureAllowlist:
         allowed_features = ["katello_errata_install"]
         register_remote_execution_tools(mcp, allowed_features)
 
-        tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
+        all_tools = asyncio.run(mcp.local_provider._list_tools())
+        tool = next(t for t in all_tools if t.name == "trigger_remote_execution_job")
 
         with pytest.raises(ToolError) as exc_info:
             asyncio.run(
@@ -180,5 +182,5 @@ class TestRexFeatureAllowlist:
         """Test that an empty allowlist registers the tool as disabled."""
         register_remote_execution_tools(mcp, [])
 
-        tool = mcp._tool_manager._tools["trigger_remote_execution_job"]
-        assert tool.enabled is False
+        enabled_names = {t.name for t in asyncio.run(mcp.list_tools())}
+        assert "trigger_remote_execution_job" not in enabled_names
