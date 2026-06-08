@@ -44,18 +44,25 @@ class TestAuthMiddleware:
         )
 
     @patch("foreman_mcp_server.middleware.auth.apypie.ForemanApi")
-    def test_different_token_same_session_returns_different_client(
-        self, mock_foreman_api
+    @pytest.mark.parametrize(
+        "token_1, token_2",
+        [
+            ("real-token", "fake-token"),
+            ("same-token", "same-token"),
+        ],
+    )
+    def test_always_returns_new_instance(
+        self, mock_foreman_api, token_1, token_2
     ):
         sentinel_1 = object()
         sentinel_2 = object()
         mock_foreman_api.side_effect = [sentinel_1, sentinel_2]
 
         context_1 = make_context(
-            username="admin", token="real-token", session_id="session-1"
+            username="admin", token=token_1, session_id="session-1"
         )
         context_2 = make_context(
-            username="admin", token="fake-token", session_id="session-1"
+            username="admin", token=token_2, session_id="session-1"
         )
 
         result_1 = self.middleware.get_foreman_api_from_request(context_1)
@@ -64,13 +71,15 @@ class TestAuthMiddleware:
         assert result_1 is not result_2
         assert mock_foreman_api.call_count == 2
 
-    def test_missing_username_raises(self):
-        context = make_context(username=None, token="token", session_id="session-1")
+    @pytest.mark.parametrize("username", [None, ""])
+    def test_missing_username_raises(self, username):
+        context = make_context(username=username, token="token", session_id="session-1")
         with pytest.raises(RuntimeError, match="username and token must be provided"):
             self.middleware.get_foreman_api_from_request(context)
 
-    def test_missing_token_raises(self):
-        context = make_context(username="admin", token=None, session_id="session-1")
+    @pytest.mark.parametrize("token", [None, ""])
+    def test_missing_token_raises(self, token):
+        context = make_context(username="admin", token=token, session_id="session-1")
         with pytest.raises(RuntimeError, match="username and token must be provided"):
             self.middleware.get_foreman_api_from_request(context)
 

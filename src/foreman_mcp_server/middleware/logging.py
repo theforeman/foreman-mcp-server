@@ -11,6 +11,7 @@ _SAFE_HEADERS = frozenset(
         "connection",
         "content-length",
         "content-type",
+        "foreman_username",
         "host",
         "mcp-session-id",
         "user-agent",
