@@ -1,3 +1,5 @@
+import logging
+
 import apypie
 from fastmcp.server.dependencies import get_http_request
 from fastmcp.server.middleware import Middleware, MiddlewareContext
@@ -10,6 +12,7 @@ class AuthMiddleware(Middleware):
         self.foreman_url = foreman_url
         self.verify_ssl = verify_ssl
         self.foreman_api = foreman_api
+        self.logger = logging.getLogger("foreman_mcp_server")
 
     async def on_request(self, context: MiddlewareContext, call_next):
         if context.fastmcp_context:
@@ -26,6 +29,7 @@ class AuthMiddleware(Middleware):
         try:
             request = get_http_request()
         except RuntimeError:
+            self.logger.debug("No HTTP context available (stdio transport)")
             return None
         foreman_username = request.headers.get("foreman_username")
         foreman_token = request.headers.get("foreman_token")

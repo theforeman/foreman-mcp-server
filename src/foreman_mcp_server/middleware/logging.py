@@ -34,15 +34,19 @@ class LoggingMiddleware(Middleware):
                 if context.source == "client":
                     self._log_client_info(context.fastmcp_context)
             except Exception:
-                pass
+                self.logger.debug("Failed to log client info", exc_info=True)
         return await call_next(context)
 
     def _log_client_info(self, fastmcp_context):
-        request = get_http_request()
+        try:
+            request = get_http_request()
+        except RuntimeError:
+            request = None
         if request is not None:
-            self.logger.debug(
-                f"  Client host: {request.client.host}:{request.client.port}"
-            )
+            if request.client:
+                self.logger.debug(
+                    f"  Client host: {request.client.host}:{request.client.port}"
+                )
             self.logger.debug(
                 f"  Client headers: {self._sanitize_headers(request.headers)}"
             )

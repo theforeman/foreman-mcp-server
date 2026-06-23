@@ -24,7 +24,6 @@ class TestAllowedRemoteExecutionFeaturesResource:
 
     def _get_resource_result(self, mcp, _ctx):
         """Helper to get the resource function and run it."""
-        from fastmcp import FastMCP
         from fastmcp.server.context import Context
 
         all_resources = asyncio.run(mcp.local_provider._list_resources())
@@ -35,10 +34,9 @@ class TestAllowedRemoteExecutionFeaturesResource:
         )
 
         async def _call():
-            # In fastmcp v3, resource.fn is wrapped by without_injected_parameters
+            # resource.fn is wrapped by without_injected_parameters in fastmcp v3
             # which requires an active Context for DI to inject ctx.
-            test_mcp = FastMCP("test-helper")
-            async with Context(fastmcp=test_mcp):
+            async with Context(fastmcp=mcp):
                 return await resource.fn()
 
         return asyncio.run(_call())

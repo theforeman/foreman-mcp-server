@@ -1,25 +1,31 @@
 import logging
 from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 from foreman_mcp_server.middleware.logging import _SAFE_HEADERS, LoggingMiddleware
+
+
+def make_http_request(host="127.0.0.1", port=12345, headers=None):
+    request = Mock()
+    request.client = SimpleNamespace(host=host, port=port)
+    request.headers = headers or {}
+    return request
 
 
 class TestLogClientInfo:
     def setup_method(self):
         self.middleware = LoggingMiddleware()
 
-    def test_headers_are_sanitized(self, caplog):
+    @patch("foreman_mcp_server.middleware.logging.get_http_request")
+    def test_headers_are_sanitized(self, mock_get_http_request, caplog):
+        mock_get_http_request.return_value = make_http_request(
+            headers={
+                "host": "foreman.example.com",
+                "foreman_token": "super-secret",
+            }
+        )
         ctx = SimpleNamespace(
-            request_context=SimpleNamespace(
-                request=SimpleNamespace(
-                    client=SimpleNamespace(host="127.0.0.1", port=12345),
-                    headers={
-                        "host": "foreman.example.com",
-                        "foreman_token": "super-secret",
-                    },
-                ),
-                session=SimpleNamespace(client_params={}),
-            ),
+            request_context=SimpleNamespace(session=SimpleNamespace(client_params={})),
             client_id="test-client",
         )
         with caplog.at_level(logging.DEBUG, logger="foreman_mcp_server"):
@@ -29,6 +35,48 @@ class TestLogClientInfo:
         assert "foreman.example.com" in header_line
         assert "super-secret" not in header_line
         assert "******" in header_line
+
+    @patch("foreman_mcp_server.middleware.logging.get_http_request")
+    def test_logs_client_host_when_client_available(
+        self, mock_get_http_request, caplog
+    ):
+        mock_get_http_request.return_value = make_http_request(
+            host="10.0.0.1", port=54321
+        )
+        ctx = SimpleNamespace(client_id="client-1", request_context=None)
+        with caplog.at_level(logging.DEBUG, logger="foreman_mcp_server"):
+            self.middleware._log_client_info(ctx)
+
+        assert any("10.0.0.1:54321" in m for m in caplog.messages)
+
+    @patch("foreman_mcp_server.middleware.logging.get_http_request")
+    def test_no_host_logged_when_client_is_none(self, mock_get_http_request, caplog):
+        request = make_http_request()
+        request.client = None
+        mock_get_http_request.return_value = request
+        ctx = SimpleNamespace(client_id="client-1", request_context=None)
+        with caplog.at_level(logging.DEBUG, logger="foreman_mcp_server"):
+            self.middleware._log_client_info(ctx)
+
+        assert not any("Client host" in m for m in caplog.messages)
+
+    @patch("foreman_mcp_server.middleware.logging.get_http_request")
+    def test_stdio_transport_skips_http_info(self, mock_get_http_request, caplog):
+        mock_get_http_request.side_effect = RuntimeError("No HTTP context")
+        ctx = SimpleNamespace(client_id="client-stdio", request_context=None)
+        with caplog.at_level(logging.DEBUG, logger="foreman_mcp_server"):
+            self.middleware._log_client_info(ctx)
+
+        assert any("client-stdio" in m for m in caplog.messages)
+        assert not any("Client host" in m for m in caplog.messages)
+
+    @patch("foreman_mcp_server.middleware.logging.get_http_request")
+    def test_mcp_info_headers_with_no_http_context(self, mock_get_http_request):
+        from foreman_mcp_server.utils.utils import mcp_info_headers
+
+        mock_get_http_request.side_effect = RuntimeError("No HTTP context")
+        result = mcp_info_headers(Mock())
+        assert result == {}
 
 
 class TestSanitizeHeaders:

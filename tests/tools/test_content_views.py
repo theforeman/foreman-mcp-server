@@ -224,6 +224,11 @@ class TestToolRegistration:
         assert "publish_content_view" not in enabled
         assert "promote_content_view_version" not in enabled
 
+        # Verify tools ARE registered (just disabled), not simply absent
+        assert self._get_tool(mcp, "incremental_content_view_update") is not None
+        assert self._get_tool(mcp, "publish_content_view") is not None
+        assert self._get_tool(mcp, "promote_content_view_version") is not None
+
     def test_default_allowlist_disables_all_tools(self, mcp):
         """Test that the default (no allowlist) registers all tools as disabled."""
         register_content_view_tools(mcp)
@@ -233,6 +238,11 @@ class TestToolRegistration:
         assert "publish_content_view" not in enabled
         assert "promote_content_view_version" not in enabled
 
+        # Verify tools ARE registered (just disabled), not simply absent
+        assert self._get_tool(mcp, "incremental_content_view_update") is not None
+        assert self._get_tool(mcp, "publish_content_view") is not None
+        assert self._get_tool(mcp, "promote_content_view_version") is not None
+
     def test_selective_allowlist_enables_only_specified_tools(self, mcp):
         """Test that only specified actions are enabled."""
         register_content_view_tools(mcp, ["publish"])
@@ -241,6 +251,10 @@ class TestToolRegistration:
         assert "incremental_content_view_update" not in enabled
         assert "publish_content_view" in enabled
         assert "promote_content_view_version" not in enabled
+
+        # Verify disabled tools ARE registered, not simply absent
+        assert self._get_tool(mcp, "incremental_content_view_update") is not None
+        assert self._get_tool(mcp, "promote_content_view_version") is not None
 
     def test_all_actions_enabled(self, mcp):
         """Test that all actions can be enabled."""
