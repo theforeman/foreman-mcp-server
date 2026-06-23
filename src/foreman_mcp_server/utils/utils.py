@@ -58,15 +58,14 @@ def get_foreman_api(ctx: Context) -> ForemanApi:
     """Retrieves the Foreman API instance from the context.
 
     This function provides unified access to the ForemanApi instance across both
-    stdio and streamable-http transports. The AuthMiddleware injects
-    `foreman_api` via the shared _request_state dict (fastmcp v3) or directly
-    as an attribute (fastmcp v2 compatibility).
+    stdio and streamable-http transports. AuthMiddleware stores foreman_api in
+    _request_state, which child contexts inherit. The getattr fallback is a
+    defensive safety net in case _request_state is absent in a future version.
     """
-    # fastmcp v3: AuthMiddleware stores foreman_api in _request_state, which is
-    # shared between the middleware context and the tool's child context.
-    foreman_api = ctx._request_state.get("foreman_api") or getattr(
-        ctx, "foreman_api", None
-    )
+    request_state = getattr(ctx, "_request_state", None)
+    foreman_api = (
+        request_state.get("foreman_api") if request_state else None
+    ) or getattr(ctx, "foreman_api", None)
     if foreman_api is not None:
         return foreman_api
 

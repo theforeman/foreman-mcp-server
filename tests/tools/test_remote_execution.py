@@ -184,3 +184,7 @@ class TestRexFeatureAllowlist:
 
         enabled_names = {t.name for t in asyncio.run(mcp.list_tools())}
         assert "trigger_remote_execution_job" not in enabled_names
+
+        # Verify tool IS registered (just disabled), not simply absent
+        all_tools = asyncio.run(mcp.local_provider._list_tools())
+        assert any(t.name == "trigger_remote_execution_job" for t in all_tools)
