@@ -51,9 +51,7 @@ class TestAuthMiddleware:
             ("same-token", "same-token"),
         ],
     )
-    def test_always_returns_new_instance(
-        self, mock_foreman_api, token_1, token_2
-    ):
+    def test_always_returns_new_instance(self, mock_foreman_api, token_1, token_2):
         sentinel_1 = object()
         sentinel_2 = object()
         mock_foreman_api.side_effect = [sentinel_1, sentinel_2]
