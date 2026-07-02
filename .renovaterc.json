@@ -8,7 +8,7 @@
   },
   "pip-compile": {
     "enabled": true,
-    "managerFilePatterns": ["requirements-build\\.txt$"]
+    "managerFilePatterns": ["requirements\\.txt$", "requirements-build\\.txt$"]
   },
   "tekton": {
     "enabled": true
@@ -28,18 +28,12 @@
       "enabled": false
     },
     {
-      "description": "Group all pyproject.toml dependencies in one PR",
-      "matchManagers": ["pep621"],
-      "matchFileNames": ["pyproject.toml"],
+      "description": "Group all Python dependency updates in one PR",
+      "matchManagers": ["pep621", "pip-compile", "pip_requirements"],
+      "matchFileNames": ["pyproject.toml", "requirements.txt", "requirements-build.txt"],
       "groupName": "pyproject.toml dependencies",
-      "groupSlug": "pyproject-deps"
-    },
-    {
-      "description": "requirements-build.txt updates in separate PR",
-      "matchManagers": ["pip_requirements", "pip-compile"],
-      "matchFileNames": ["requirements-build.txt"],
-      "groupName": "requirements-build",
-      "groupSlug": "requirements-build"
+      "groupSlug": "pyproject-deps",
+      "updatePinnedDependencies": true
     },
     {
       "description": "Containerfile.ubi9 updates in separate PR",
