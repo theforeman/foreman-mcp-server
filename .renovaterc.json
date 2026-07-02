@@ -18,7 +18,6 @@
   },
   "timezone": "America/New_York",
   "schedule": ["after 9am and before 10am every weekday"],
-  "updatePinnedDependencies": false,
   "packageRules": [
     {
       "description": "Disable major and minor updates for fastmcp only",
@@ -32,8 +31,7 @@
       "matchManagers": ["pep621", "pip-compile", "pip_requirements"],
       "matchFileNames": ["pyproject.toml", "requirements.txt", "requirements-build.txt"],
       "groupName": "pyproject.toml dependencies",
-      "groupSlug": "pyproject-deps",
-      "updatePinnedDependencies": true
+      "groupSlug": "pyproject-deps"
     },
     {
       "description": "Containerfile.ubi9 updates in separate PR",
