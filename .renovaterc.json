@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
+    "github>theforeman/theforeman-rel-eng-konflux//renovate/konflux-tekton"
   ],
   "constraints": {
     "python": "==3.12"
@@ -9,9 +9,6 @@
   "pip-compile": {
     "enabled": true,
     "managerFilePatterns": ["requirements\\.txt$", "requirements-build\\.txt$"]
-  },
-  "tekton": {
-    "enabled": true
   },
   "pyenv": {
     "enabled": false
