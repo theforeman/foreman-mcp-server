@@ -221,7 +221,7 @@ spec:
         - name: name
           value: buildah-oci-ta
         - name: bundle
-          value: quay.io/foreman/tekton-catalog/task-buildah-oci-ta@sha256:4b16776e9028dc9d51e30cd77e832ce9b4b7a400851ede070f84e780bb20de63
+          value: quay.io/foreman/tekton-catalog/task-buildah-oci-ta@sha256:2b5c6df75cf64c59f7725a6515b3d2c260fb487425ccc33bb907d22a350efc55
         - name: kind
           value: task
         resolver: bundles
