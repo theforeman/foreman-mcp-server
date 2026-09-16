@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
   annotations:
+    pipelinesascode.tekton.dev/task: "github-add-comment:0.3.0"
     build.appstudio.openshift.io/repo: https://github.com/theforeman/foreman-mcp-server?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
     build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
@@ -27,7 +28,7 @@ spec:
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: Containerfile
+    value: Containerfile.ubi10
   - name: build-source-image
     value: "true"
   pipelineSpec:
@@ -550,6 +551,25 @@ spec:
         - name: kind
           value: task
         resolver: bundles
+    - name: post-image-tag
+      runAfter:
+      - apply-tags
+      taskRef:
+        name: github-add-comment
+      params:
+      - name: REQUEST_URL
+        value: "{{ repo_url }}/pull/{{ pull_request_number }}"
+      - name: COMMENT_OR_FILE
+        value: |
+          :package: **Build complete!**
+
+          Test this image with tag: `quay.io/foreman/stage/foreman-mcp-server:pull-request-{{ pull_request_number }}`
+
+          Built from commit: [`{{ revision }}`]({{ repo_url }}/commit/{{ revision }})
+      - name: GITHUB_TOKEN_SECRET_NAME
+        value: "{{ git_auth_secret }}"
+      - name: GITHUB_TOKEN_SECRET_KEY
+        value: "git-provider-token"
     - name: push-dockerfile
       params:
       - name: IMAGE

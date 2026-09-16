@@ -24,7 +24,7 @@ spec:
   - name: output-image
     value: quay.io/foreman/stage/foreman-mcp-server:{{revision}}
   - name: dockerfile
-    value: Containerfile
+    value: Containerfile.ubi10
   - name: build-source-image
     value: "true"
   pipelineSpec:
