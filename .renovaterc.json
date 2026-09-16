@@ -7,8 +7,10 @@
     "python": "==3.12"
   },
   "pip-compile": {
-    "enabled": true,
-    "managerFilePatterns": ["requirements\\.txt$", "requirements-build\\.txt$"]
+    "enabled": false
+  },
+  "pip_requirements": {
+    "enabled": false
   },
   "pyenv": {
     "enabled": false
@@ -25,17 +27,17 @@
     },
     {
       "description": "Group all Python dependency updates in one PR",
-      "matchManagers": ["pep621", "pip-compile", "pip_requirements"],
-      "matchFileNames": ["pyproject.toml", "requirements.txt", "requirements-build.txt"],
-      "groupName": "pyproject.toml dependencies",
-      "groupSlug": "pyproject-deps"
+      "matchManagers": ["pep621"],
+      "matchFileNames": ["pyproject.toml", "uv.lock"],
+      "groupName": "uv dependencies",
+      "groupSlug": "uv-deps"
     },
     {
-      "description": "Containerfile.ubi9 updates in separate PR",
+      "description": "Group UBI Containerfile updates in one PR",
       "matchManagers": ["dockerfile"],
-      "matchFileNames": ["Containerfile.ubi9"],
-      "groupName": "containerfile-ubi9",
-      "groupSlug": "containerfile-ubi9"
+      "matchFileNames": ["Containerfile.ubi9", "Containerfile.ubi10"],
+      "groupName": "UBI Containerfiles",
+      "groupSlug": "ubi-containerfiles"
     },
     {
       "description": "Tekton pipeline updates in separate PR",
