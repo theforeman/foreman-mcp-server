@@ -1,0 +1,50 @@
+name: Refresh generated requirements
+
+on:
+  push:
+    branches:
+      - develop
+    paths:
+      - 'uv.lock'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh-requirements:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install build dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential cmake cargo libffi-dev
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
+    - name: Refresh requirement exports
+      run: make generate-requirements
+
+    - name: Create pull request for refreshed requirement exports
+      uses: peter-evans/create-pull-request@v7
+      with:
+        branch: automation/refresh-requirements
+        delete-branch: true
+        title: Refresh generated Python requirements
+        commit-message: 'Refresh generated Python requirements'
+        author: 'Foreman Packaging Automation <packaging@theforeman.org>'
+        body: |
+          Regenerates `requirements.txt` and `requirements-build.txt` from the
+          current `uv.lock` for Python 3.12.
+        add-paths: |
+          requirements.txt
+          requirements-build.txt

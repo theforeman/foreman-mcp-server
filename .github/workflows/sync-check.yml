@@ -1,4 +1,4 @@
-name: Check uv.lock and requirements-build.txt sync
+name: Check uv.lock and generated requirements sync
 
 on:
   push:
@@ -33,22 +33,23 @@ jobs:
     - name: Ensure pybuild-deps cache directory exists
       run: mkdir -p ~/.cache/pybuild-deps
 
-    - name: Copy original requirements-build.txt for comparison
+    - name: Copy generated requirements for comparison
       run: |
+        cp requirements.txt requirements-original.txt
         cp requirements-build.txt requirements-build-original.txt
 
-    - name: Regenerate requirements-build.txt from uv.lock
+    - name: Regenerate requirements from uv.lock
       run: |
         make generate-requirements
 
-    - name: Compare regenerated file with original
+    - name: Compare regenerated files with originals
       run: |
-        if ! diff -u requirements-build-original.txt requirements-build.txt; then
-          echo "ERROR: requirements-build.txt is not in sync with uv.lock"
+        if ! diff -u requirements-original.txt requirements.txt || ! diff -u requirements-build-original.txt requirements-build.txt; then
+          echo "ERROR: generated requirements are not in sync with uv.lock"
           echo ""
           echo "The differences above show what needs to be updated."
           echo "To fix this, run: make generate-requirements"
           exit 1
         else
-          echo "requirements-build.txt is in sync with uv.lock"
+          echo "Generated requirements are in sync with uv.lock"
         fi
