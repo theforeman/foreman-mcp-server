@@ -1,35 +1,55 @@
-name: Build and Push Image
-on: 
+name: Build UBI images
+
+on:
   push:
     branches:
       - develop
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'uv.lock'
+      - 'pyproject.toml'
+      - 'requirements*.txt'
+      - 'Containerfile.ubi9'
+      - 'Containerfile.ubi10'
+      - '.github/workflows/container.yml'
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'uv.lock'
+      - 'pyproject.toml'
+      - 'requirements*.txt'
+      - 'Containerfile.ubi9'
+      - 'Containerfile.ubi10'
+      - '.github/workflows/container.yml'
+
+concurrency:
+  group: ${{ github.ref_name }}-${{ github.workflow }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    name: Build and push image
+    name: Build ${{ matrix.release }} image
     runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - release: UBI 9
+          image: ubi9
+          containerfile: Containerfile.ubi9
+        - release: UBI 10
+          image: ubi10
+          containerfile: Containerfile.ubi10
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build Image
-      id: build-image
+    - name: Build image
       uses: redhat-actions/buildah-build@v2
       with:
-        image: foreman-mcp-server
-        tags: latest ${{ github.sha }}
+        image: foreman-mcp-server-${{ matrix.image }}
+        tags: ${{ github.sha }}
         containerfiles: |
-          ./Containerfile
-
-    - name: Push To quay.io
-      id: push-to-quay
-      uses: redhat-actions/push-to-registry@v2
-      with:
-        image: ${{ steps.build-image.outputs.image }}
-        tags: ${{ steps.build-image.outputs.tags }}
-        registry: quay.io/foreman
-        username: ${{ secrets.REGISTRY_USERNAME }}
-        password: ${{ secrets.REGISTRY_TOKEN }}
-
-    - name: Print image url
-      run: echo "Image pushed to ${{ steps.push-to-quay.outputs.registry-paths }}"
+          ./${{ matrix.containerfile }}
