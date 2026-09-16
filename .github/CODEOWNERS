@@ -7,6 +7,7 @@
 .renovaterc.json        @theforeman/packaging @theforeman/mcp
 Containerfile           @theforeman/packaging @theforeman/mcp
 Containerfile.ubi9      @theforeman/packaging @theforeman/mcp
+Containerfile.ubi10     @theforeman/packaging @theforeman/mcp
 pyproject.toml          @theforeman/packaging @theforeman/mcp
 requirements.txt        @theforeman/packaging @theforeman/mcp
 requirements-build.txt  @theforeman/packaging @theforeman/mcp
