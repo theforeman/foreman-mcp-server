@@ -187,9 +187,9 @@ hatch-vcs==0.5.0 \
     #   referencing
     #   uncalled-for
     #   urllib3
-hatchling==1.32.1 \
-    --hash=sha256:2a519cedb52bac0881579c709efe6f23d45232ca9f776a89fa252a50e7fff1e5 \
-    --hash=sha256:fbc0ef64724a0f2fab969b03250a9bbd0b17af5e38eb71b91cfb4afe1253eace
+hatchling==1.32.0 \
+    --hash=sha256:0bdbde4a52b06c37e3eca395f85a762bf0ef06fe374fd8ae429dc6be10230f5f \
+    --hash=sha256:0e17c9c3b9aa7c625acc8d0f5b622f107d5049af9ecf5ada4de1aada5be7cdbc
     # via
     #   aiofile
     #   aiofiles
