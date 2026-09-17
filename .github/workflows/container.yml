@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - develop
-    paths:
+    paths: &build-paths
       - 'src/**'
       - 'tests/**'
       - 'uv.lock'
@@ -14,15 +14,7 @@ on:
       - 'Containerfile.ubi10'
       - '.github/workflows/container.yml'
   pull_request:
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'uv.lock'
-      - 'pyproject.toml'
-      - 'requirements*.txt'
-      - 'Containerfile.ubi9'
-      - 'Containerfile.ubi10'
-      - '.github/workflows/container.yml'
+    paths: *build-paths
 
 concurrency:
   group: ${{ github.ref_name }}-${{ github.workflow }}
