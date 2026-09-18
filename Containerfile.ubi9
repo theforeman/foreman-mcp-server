@@ -30,6 +30,6 @@ LABEL com.redhat.component="satellite/foreman-mcp-server-rhel9" \
       io.openshift.tags="satellite mcp"
 
 EXPOSE 8080/tcp
-ENV HOST=0.0.0.0
+ENV HOST=::
 
 ENTRYPOINT ["python", "-m", "foreman_mcp_server"]
