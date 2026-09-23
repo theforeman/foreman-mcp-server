@@ -3,10 +3,18 @@ name: Check uv.lock and generated requirements sync
 on:
   push:
     paths:
-      - 'uv.lock'
+      # Konflux may update uv.lock without regenerating these exports.
+      - 'pyproject.toml'
+      - 'Makefile'
+      - 'requirements.txt'
+      - 'requirements-build.txt'
   pull_request:
     paths:
-      - 'uv.lock'
+      # Konflux may update uv.lock without regenerating these exports.
+      - 'pyproject.toml'
+      - 'Makefile'
+      - 'requirements.txt'
+      - 'requirements-build.txt'
 
 concurrency:
   group: ${{ github.ref_name }}-${{ github.workflow }}
