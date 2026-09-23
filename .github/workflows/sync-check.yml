@@ -6,6 +6,7 @@ on:
       # Konflux may update uv.lock without regenerating these exports.
       - 'pyproject.toml'
       - 'Makefile'
+      - 'requirements-build.in'
       - 'requirements.txt'
       - 'requirements-build.txt'
   pull_request:
@@ -13,6 +14,7 @@ on:
       # Konflux may update uv.lock without regenerating these exports.
       - 'pyproject.toml'
       - 'Makefile'
+      - 'requirements-build.in'
       - 'requirements.txt'
       - 'requirements-build.txt'
 

@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - 'uv.lock'
+      - 'requirements-build.in'
 
 permissions:
   contents: write
