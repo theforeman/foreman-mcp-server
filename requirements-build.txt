@@ -400,9 +400,9 @@ setuptools-rust==1.13.0 \
     --hash=sha256:666439c4d90e968bb625bcf87ec0aa02b4f49e599d2f5dc255c633a04e8eca99 \
     --hash=sha256:f2afcf4baeee689910ce49cfa8aad4e08cce72f417449bcc32891b8664fdc726
     # via maturin
-setuptools-scm==10.2.3 \
-    --hash=sha256:7fcf8ff55c95eb8b572a23c81495e5559b9b90f3e82fcf0952bb76c37de27a81 \
-    --hash=sha256:f179ed3e2a63cf5823e5ee9aa9ca08386219400443a0553224d72dde3f206b44
+setuptools-scm==10.3.3 \
+    --hash=sha256:2aa1774b1a240c74ef05559d81952010fbae4babcd622a5aea9e6be67f106c02 \
+    --hash=sha256:67755d260cd70d470d44410a6416d3014c579a78a47c86fe1c03f0b7c0d30864
     # via
     #   anyio
     #   cachetools
