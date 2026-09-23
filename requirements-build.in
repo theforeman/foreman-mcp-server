@@ -1,0 +1,2 @@
+# Keep uv-build within the Rust 1.92 MSRV available in UBI 10.
+uv-build==0.11.7
