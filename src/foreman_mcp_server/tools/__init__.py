@@ -1,4 +1,5 @@
 from .call_foreman_api import register_foreman_api_methods
+from .compliance import register_compliance_tools
 from .content_views import register_content_view_tools
 from .fetch_foreman_dsl_docs import register_fetch_foreman_dsl_docs
 from .get_foreman_api_resource_docs import register_get_foreman_api_resource_docs
@@ -27,3 +28,4 @@ def register_tools(mcp, allowed_rex_features=None, allowed_cv_actions=()):
     register_remote_execution_tools(mcp, allowed_rex_features)
     register_task_tools(mcp)
     register_content_view_tools(mcp, allowed_cv_actions)
+    register_compliance_tools(mcp)
