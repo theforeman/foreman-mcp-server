@@ -181,12 +181,38 @@ def main(
     if transport == "stdio":
         mcp.run(transport="stdio", show_banner=False)
     else:
-        mcp.run(
-            transport="streamable-http",
-            host=host,
-            port=port,
-            show_banner=False,
-            log_level=log_level,
-        )
+        _run_http(mcp, host, port, log_level)
 
     ctx.exit(0)
+
+
+def _create_dual_stack_socket(host: str, port: int) -> socket.socket:
+    """Create a listening socket with dual-stack support for IPv6 addresses.
+
+    Python's asyncio unconditionally sets IPV6_V6ONLY=True on IPv6 sockets,
+    preventing them from accepting IPv4 connections.  We create the socket
+    ourselves with IPV6_V6ONLY=0 so that a single IPv6 socket can accept
+    both IPv4 and IPv6 connections (dual-stack).
+    """
+    if ":" in host:
+        sock = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        sock.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 0)
+    else:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((host, port))
+    sock.set_inheritable(True)
+    return sock
+
+
+def _run_http(mcp: FastMCP, host: str, port: int, log_level: str) -> None:
+    """Run the HTTP server with a pre-bound dual-stack socket."""
+    sock = _create_dual_stack_socket(host, port)
+    mcp.run(
+        transport="streamable-http",
+        host=host,
+        port=port,
+        log_level=log_level.lower(),
+        sockets=[sock],
+        show_banner=False,
+    )
