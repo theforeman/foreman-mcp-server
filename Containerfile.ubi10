@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi10/python-312-minimal:1789550764
+FROM registry.access.redhat.com/ubi10/python-312-minimal:10.2-1792839914
 
 USER 0
 
