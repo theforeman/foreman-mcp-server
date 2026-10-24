@@ -1,10 +1,13 @@
 name: Refresh generated requirements
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - develop
     paths:
+      - '.github/workflows/refresh-requirements.yml'
+      - 'Makefile'
       - 'uv.lock'
       - 'requirements-build.in'
 
@@ -31,6 +34,9 @@ jobs:
       uses: astral-sh/setup-uv@v4
       with:
         enable-cache: true
+
+    - name: Ensure pybuild-deps cache directory exists
+      run: mkdir -p ~/.cache/pybuild-deps
 
     - name: Refresh requirement exports
       run: make generate-requirements
