@@ -236,6 +236,23 @@ To find all available features in your Foreman instance, you can use the API:
 curl -u $USER:$PASSWORD https://foreman.example.com/api/remote_execution_features
 ```
 
+# Compliance Reporting
+
+When the `foreman_openscap` plugin is installed, the MCP server provides
+read-only tools for compliance reporting:
+
+- `list_compliance_policies` lists OpenSCAP policies.
+- `list_compliance_reports` lists ARF reports and supports policy, status, rule,
+  host, date, and result-count filtering.
+- `list_compliance_hosts_for_policy` lists hosts assigned to a policy.
+- `get_compliance_failed_rule_detail` extracts selected failed-rule details from
+  a report without returning the full ARF XML to the client. Rule lookup accepts
+  both XCCDF rule IDs and identifiers such as CCE IDs.
+
+The report-listing tool accepts Foreman's OpenSCAP search fields, including
+`compliance_policy`, `compliance_status`, `last_for`, `xccdf_rule_name`, and
+`xccdf_rule_failed`.
+
 # Content View Actions
 
 The MCP server can publish, promote, and incrementally update content views. This functionality is **opt-in** and disabled by default for security reasons.
