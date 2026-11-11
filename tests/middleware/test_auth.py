@@ -1,5 +1,5 @@
 import asyncio
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import ANY, MagicMock, Mock, patch
 
 import pytest
 
@@ -44,6 +44,7 @@ class TestAuthMiddleware:
             username="admin",
             password="secret-token",
             verify_ssl=True,
+            session=ANY,
         )
 
     @patch("foreman_mcp_server.middleware.auth.get_http_request")

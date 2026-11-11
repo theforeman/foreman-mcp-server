@@ -4,6 +4,8 @@ import apypie
 from fastmcp.server.dependencies import get_http_request
 from fastmcp.server.middleware import Middleware, MiddlewareContext
 
+from ..utils.http_session import cookieless_session
+
 
 class AuthMiddleware(Middleware):
     def __init__(
@@ -42,4 +44,5 @@ class AuthMiddleware(Middleware):
             username=foreman_username,
             password=foreman_token,
             verify_ssl=self.verify_ssl,
+            session=cookieless_session(),
         )

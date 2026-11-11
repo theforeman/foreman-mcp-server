@@ -14,6 +14,7 @@ from .middleware.logging import LoggingMiddleware
 from .prompts import register_prompts
 from .resources import register_resources
 from .tools import register_tools
+from .utils.http_session import cookieless_session
 
 # TODO: Revisit all the places to properly handle exceptions and errors. Consider using fastmcp's exceptions.
 
@@ -173,6 +174,7 @@ def main(
             username=foreman_username,
             password=foreman_password,
             verify_ssl=verify_ssl,
+            session=cookieless_session(),
         )
     mcp.add_middleware(ErrorHandlingMiddleware())
     mcp.add_middleware(AuthMiddleware(foreman_url, verify_ssl, foreman_api))
